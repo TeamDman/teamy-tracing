@@ -3,8 +3,25 @@
 Facet JSON event and span formatting for upstream `tracing-subscriber`. This is a
 library: callers own subscriber installation, filters, terminal ownership and sinks.
 No consumer has been changed. Public source is MPL-2.0 with the applicable upstream
-MIT notice retained. This is an initial implementation checkpoint;
-`publish = false` keeps crates.io publication disabled.
+MIT notice retained. This is a release-preparation checkout, not a crates.io release.
+`publish = false` remains in effect pending review and Windows qualification.
+
+## Installation
+
+Use the reviewed local checkout while publication remains disabled:
+
+```toml
+[dependencies]
+teamy-tracing = { path = "../teamy-tracing" }
+tracing = { version = "0.1.44", default-features = false, features = ["std"] }
+tracing-subscriber = { version = "0.3.23", default-features = false, features = ["fmt", "registry"] }
+```
+
+After an approved release, replace the path dependency with the published version.
+`0.1.0` is the current candidate, not an announcement that it is available on
+crates.io. The same public API applies to the packaged crate. Applications own
+subscriber installation and may opt into upstream `env-filter` or text features.
+Adding upstream `json` elsewhere can reintroduce Serde through feature unification.
 
 ## Use
 
@@ -65,14 +82,30 @@ Do not call `inspect()` recursively from a writer callback: it takes the same mu
 
 ## Dependencies and validation
 
-The normal library graph keeps upstream subscriber `json` disabled. All Facet
-crates use the same source reference `rev = "23ad4dcd0"`, matching existing Teamy
-consumers; the lockfile records full commit
-`23ad4dcd034d123f0c38943305ffb077519040ce`. The Facet `fast` feature is disabled.
-`facet` supplies reflection for diagnostic snapshots, `facet-json` supplies JSON
-encoding/validated cache parsing, and `facet-format` supplies dynamic scalar APIs.
-No first-party source calls Serde. Another dependency can still unify subscriber
-`json` back in; inspect each consumer's resolved graph.
+The default normal/build graph keeps upstream subscriber `json` and Facet `fast`
+disabled and contains no Serde. The approved owned registry pins are:
+
+| Import name | Registry package | Exact version |
+| --- | --- | --- |
+| `facet` | `teamy-facet` | `0.50.0-rc.7` |
+| `facet-json` | `teamy-facet-json` | `0.50.0-rc.9` |
+| `facet-format` | `teamy-facet-format` | `0.50.0-rc.9` |
+| `facet-value` (tests) | `teamy-facet-value` | `0.50.0-rc.9` |
+
+These packages share a single owned rc.7 core/reflect/macro family; matching crate
+names or version numbers from upstream or Git do not imply the same Rust type
+identity. `DiagnosticSnapshot` implements the registry `teamy-facet` trait. A
+consumer serializing it can use:
+
+```toml
+facet-json = { package = "teamy-facet-json", version = "=0.50.0-rc.9", default-features = false }
+```
+
+Then call `facet_json::to_string(&diagnostics.snapshot())`. Consumers deriving their
+own compatible types also need `facet = { package = "teamy-facet", version =
+"=0.50.0-rc.7" }`. The earlier Git identity is not interchangeable. Both lockfiles
+record registry checksums; release preparation requalifies this dependency change
+rather than assuming the old Git measurements still apply.
 
 `validation/upstream-comparison` is a separate workspace with its own lockfile.
 Only it enables upstream JSON for comparison. Its external Serde dependencies are
@@ -80,14 +113,20 @@ intentional and cannot be selected through a feature of this library. Do not use
 that graph as the library runtime dependency report. `facet-value`, `tracing-error`
 and EnvFilter are library dev dependencies for behavioral validation.
 
-Run `scripts/check.ps1` on Windows or `sh scripts/check.sh` on Linux, with the
-documented toolchains and cached dependencies. The scripts install nothing and use
-offline, locked resolution. [Library acceptance](docs/library-acceptance.md) records 28 behavioral tests, the
-proposed typed startup adapter and current measurement/integration limits.
-[Linux qualification](docs/linux-qualification.md) retains the earlier optimization
-and repeatable before/after measurements. [Validation](docs/validation.md) records coverage and
-measurement limits; [cloud proposal](docs/cloud-setup.md) retains the original
-Linux environment proposal with `teamy-docs` beside the repository.
+Maintainer scripts are **checkout-only**: run `scripts/check.ps1` on Windows or
+`sh scripts/check.sh` on Linux with the documented toolchains and cached dependencies.
+They install nothing and use offline, locked Cargo. The scripts and isolated
+comparison workspace are excluded from the crate archive. From an extracted crate,
+run `cargo test --offline --locked`, both examples, `cargo clippy --offline --locked
+--all-targets --no-deps -- -D warnings`, and `cargo doc --offline --locked --no-deps`.
+Populate dependency caches before requesting offline validation.
+
+[Registry release preparation](docs/release-preparation.md) records current checks,
+package verification and remaining release gates. [Library acceptance](docs/library-acceptance.md)
+and [Linux qualification](docs/linux-qualification.md) retain historical Git-baseline
+coverage and measurements. The startup adapter is illustrative, not qualified
+against the unavailable newer template formatter. Native Tracy/cancellation
+integration, real-consumer acceptance and a Windows rerun remain separate.
 
 ## Provenance and licensing
 

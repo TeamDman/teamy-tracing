@@ -1,3 +1,4 @@
+# Checkout-only: omitted from the crate archive with the comparison workspace.
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 Push-Location $root
@@ -10,6 +11,12 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Clippy failed' }
     & cargo test --offline --locked
     if ($LASTEXITCODE -ne 0) { throw 'Tests failed' }
+    $previousRustdocFlags = $env:RUSTDOCFLAGS
+    try {
+        $env:RUSTDOCFLAGS = '-D warnings'
+        & cargo doc --offline --locked --no-deps
+        if ($LASTEXITCODE -ne 0) { throw 'Documentation failed' }
+    } finally { $env:RUSTDOCFLAGS = $previousRustdocFlags }
     & cargo run --offline --locked --example independent_sinks
     if ($LASTEXITCODE -ne 0) { throw 'Sink example failed' }
     & cargo run --offline --locked --example typed_startup

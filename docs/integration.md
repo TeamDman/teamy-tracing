@@ -29,12 +29,12 @@ has no typed startup formatter. Obtain the exact newer source before claiming
 consumer compatibility. See [library acceptance](library-acceptance.md) for the
 four executable adapter/sink tests and remaining prerequisites.
 
-Keep all directly referenced Facet crates on the identical Git source reference,
-currently `rev = "23ad4dcd0"`, resolved to full commit
-`23ad4dcd034d123f0c38943305ffb077519040ce`. Different `rev` URL spellings or registry
-releases can create distinct Facet identities even when names/versions look alike.
-`DiagnosticSnapshot` derives the pinned Facet, so downstream serialization must use
-that compatible source. This is not permission to upgrade profiler's older Facet.
+Use the exact owned registry family: `facet` aliases `teamy-facet =0.50.0-rc.7`;
+JSON/format/value alias their `teamy-` packages at `=0.50.0-rc.9`. Both workspaces
+resolve one registry core/reflect/macro family at rc.7. `DiagnosticSnapshot` now
+implements that registry Facet identity; the previous Git source and upstream
+`facet` packages are distinct identities. A consumer with old Git dependencies
+needs its own reviewed migration; this library change does not authorize one.
 
 The existing cancellation, tracing-error and Tracy layers retain upstream Layer
 identity. The local behavior tests exercise tracing-error and independent filters;
@@ -53,7 +53,7 @@ capture, but its CPU summaries come from `.tracy`; JSON formatting is a separate
 
 The public implementation branch is source-only (`publish = false`). Pin an audited
 full commit after review; retain the existing upstream subscriber package identity
-and identical owned Facet source URL/revision. The formatter/layer API is unchanged
+and the approved exact owned registry dependency family. The formatter/layer API is unchanged
 by the span cache optimization. Never manipulate its private validated cache; if an
 adapter edits upstream FormattedFields, the next event revalidates the changed bytes.
 

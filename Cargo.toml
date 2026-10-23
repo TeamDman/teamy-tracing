@@ -8,17 +8,19 @@ license = "MPL-2.0"
 repository = "https://github.com/TeamDman/teamy-tracing"
 readme = "README.md"
 publish = false
-# Source publication is approved; crates.io publication remains disabled.
+# Maintainer gates and the isolated comparison workspace run only from a checkout.
+exclude = ["/scripts", "/validation", "/AGENTS.md"]
+# Release preparation only; pushes and crates.io publication require separate review.
 
 [dependencies]
 tracing = { version = "0.1.44", default-features = false, features = ["std"] }
 tracing-subscriber = { version = "0.3.23", default-features = false, features = ["fmt", "registry"] }
-facet-json = { git = "https://github.com/TeamDman/facet.git", rev = "23ad4dcd0", default-features = false }
-facet-format = { git = "https://github.com/TeamDman/facet.git", rev = "23ad4dcd0", default-features = false }
-facet = { git = "https://github.com/TeamDman/facet.git", rev = "23ad4dcd0" }
+facet-json = { package = "teamy-facet-json", version = "=0.50.0-rc.9", default-features = false }
+facet-format = { package = "teamy-facet-format", version = "=0.50.0-rc.9", default-features = false }
+facet = { package = "teamy-facet", version = "=0.50.0-rc.7" }
 
 [dev-dependencies]
-facet-value = { git = "https://github.com/TeamDman/facet.git", rev = "23ad4dcd0" }
+facet-value = { package = "teamy-facet-value", version = "=0.50.0-rc.9" }
 tracing-subscriber = { version = "0.3.23", default-features = false, features = ["env-filter"] }
 tracing-error = "0.2.1"
 

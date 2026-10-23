@@ -1,3 +1,12 @@
+# Local registry release preparation
+
+The dedicated `release-preparation/owned-registry` branch migrates both workspaces
+to exact owned registry dependencies and verifies the extracted crate. See
+[release preparation](release-preparation.md) for the tested graph, archive/API
+checks and remaining Windows/release-review gates. Commit locally only; no push or
+package publication is authorized by this handoff. `publish = false` remains set.
+Historical handoffs below describe earlier Git-dependent checkpoints.
+
 # Bounded Linux library acceptance
 
 The next checkpoint adds realistic proposed typed-startup and independent-sink

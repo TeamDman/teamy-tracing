@@ -1,7 +1,41 @@
 //! Facet JSON formatting with upstream subscriber registry, filtering and layers.
 //!
-//! No global subscriber is installed. Supply a writer at the application boundary.
-//! See the README for schema compatibility and delivery failure semantics.
+//! Supply writers and install the subscriber at the application boundary. The
+//! library never acquires stdout/stderr or installs a global subscriber.
+//!
+//! # Example
+//!
+//! ```
+//! use teamy_tracing::{Diagnostics, SharedWriter};
+//! use tracing_subscriber::prelude::*;
+//!
+//! let diagnostics = Diagnostics::default();
+//! let writer = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
+//! let subscriber = tracing_subscriber::registry()
+//!     .with(teamy_tracing::layer(writer.clone(), diagnostics.clone()));
+//! tracing::subscriber::with_default(subscriber, || {
+//!     let span = tracing::info_span!("operation", completed = 0u64);
+//!     let _entered = span.enter();
+//!     span.record("completed", 3u64);
+//!     tracing::info!("finished");
+//! });
+//! writer.flush().unwrap();
+//! assert_eq!(diagnostics.snapshot(), Default::default());
+//! ```
+//!
+//! [`FacetJson`] controls JSON settings; replacing upstream's formatter does not
+//! inherit upstream `Format` options. [`layer`] disables ANSI and plain-text
+//! internal-error fallback. Apply filters independently to each layer.
+//!
+//! [`SharedWriter`] serializes whole-record writes and stops delivery after an
+//! I/O error. A failed write may leave a truncated last line. Explicit flush is
+//! fallible and is not fsync. Writer callbacks must not recurse into tracing,
+//! `inspect`, or `flush`. Inspect [`Diagnostics`] outside logging callbacks.
+//!
+//! [`DiagnosticSnapshot`] implements the Facet trait from the exact owned
+//! registry dependency (`teamy-facet`), not an upstream or Git Facet identity.
+//! The public subscriber traits remain those of crates.io `tracing-subscriber`.
+//! Log-facade normalization and unstable valuable support are not implemented.
 mod diagnostic_counters;
 mod diagnostic_snapshot;
 mod diagnostics;

@@ -1,3 +1,6 @@
+Latest graph: [owned registry release preparation](release-preparation.md).
+The receipts below describe earlier Git-dependent checkpoints.
+
 Latest acceptance: [Linux library acceptance](library-acceptance.md), 28 behavioral tests.
 
 Latest continuation: [Linux qualification and measurements](linux-qualification.md).

@@ -1,0 +1,12 @@
+{"formatter":"facet_standard","scenario":"disabled","iterations":20000,"samples":7,"median_ns_per_iteration":0.28065,"minimum_ns_per_iteration":0.2801,"maximum_ns_per_iteration":0.28595}
+{"formatter":"upstream_serde","scenario":"disabled","iterations":20000,"samples":7,"median_ns_per_iteration":0.2809,"minimum_ns_per_iteration":0.28025,"maximum_ns_per_iteration":0.2812}
+{"formatter":"facet_standard","scenario":"events","iterations":20000,"samples":7,"median_ns_per_iteration":482.3675,"minimum_ns_per_iteration":471.9813,"maximum_ns_per_iteration":495.8924}
+{"formatter":"upstream_serde","scenario":"events","iterations":20000,"samples":7,"median_ns_per_iteration":554.47605,"minimum_ns_per_iteration":549.54615,"maximum_ns_per_iteration":572.75675}
+{"formatter":"facet_standard","scenario":"deep_spans","iterations":20000,"samples":7,"median_ns_per_iteration":673.9544,"minimum_ns_per_iteration":665.87255,"maximum_ns_per_iteration":702.5556}
+{"formatter":"upstream_serde","scenario":"deep_spans","iterations":20000,"samples":7,"median_ns_per_iteration":1845.66515,"minimum_ns_per_iteration":1829.41635,"maximum_ns_per_iteration":1871.8327}
+{"formatter":"facet_standard","scenario":"span_updates","iterations":20000,"samples":7,"median_ns_per_iteration":4394.3004,"minimum_ns_per_iteration":4354.2417,"maximum_ns_per_iteration":4464.74605}
+{"formatter":"upstream_serde","scenario":"span_updates","iterations":20000,"samples":7,"median_ns_per_iteration":2054.15585,"minimum_ns_per_iteration":2045.49615,"maximum_ns_per_iteration":2073.4731}
+{"formatter":"facet_standard","scenario":"updates_only","iterations":20000,"samples":7,"median_ns_per_iteration":1908.81135,"minimum_ns_per_iteration":1888.8143,"maximum_ns_per_iteration":1918.4694}
+{"formatter":"upstream_serde","scenario":"updates_only","iterations":20000,"samples":7,"median_ns_per_iteration":453.55435,"minimum_ns_per_iteration":450.0701,"maximum_ns_per_iteration":470.94205}
+{"formatter":"facet_standard","scenario":"span_churn","iterations":20000,"samples":7,"median_ns_per_iteration":2293.68055,"minimum_ns_per_iteration":2275.8381,"maximum_ns_per_iteration":2320.6187}
+{"formatter":"upstream_serde","scenario":"span_churn","iterations":20000,"samples":7,"median_ns_per_iteration":1602.9019500000002,"minimum_ns_per_iteration":1591.9936,"maximum_ns_per_iteration":1609.8446499999998}
