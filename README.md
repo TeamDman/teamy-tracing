@@ -82,9 +82,10 @@ and EnvFilter are library dev dependencies for behavioral validation.
 
 Run `scripts/check.ps1` on Windows or `sh scripts/check.sh` on Linux, with the
 documented toolchains and cached dependencies. The scripts install nothing and use
-offline, locked resolution. [Validation](docs/validation.md) records coverage and
-measurement limits; [cloud proposal](docs/cloud-setup.md) describes an uncreated
-Linux environment with `teamy-docs` beside the repository.
+offline, locked resolution. [Linux qualification](docs/linux-qualification.md) records the optimized span cache,
+24 behavioral tests and repeatable before/after measurements. [Validation](docs/validation.md) records coverage and
+measurement limits; [cloud proposal](docs/cloud-setup.md) retains the original
+Linux environment proposal with `teamy-docs` beside the repository.
 
 ## Provenance and licensing
 

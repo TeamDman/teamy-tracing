@@ -1,3 +1,7 @@
+Current status: the selected Linux environment was exercised; see
+[qualification](linux-qualification.md). The proposal below is historical and does
+not describe additional setup required by this checkpoint.
+
 # Proposed Linux validation environment
 
 Status: environment proposal only. Source publication to the public MPL-2.0

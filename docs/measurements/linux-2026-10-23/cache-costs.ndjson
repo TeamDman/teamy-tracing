@@ -1,0 +1,2 @@
+{"formatter":"facet_standard","scenario":"parse_span_cache","iterations":20000,"samples":7,"median_ns_per_iteration":1473.8943,"minimum_ns_per_iteration":1440.77955,"maximum_ns_per_iteration":1582.4533500000002}
+{"formatter":"facet_standard","scenario":"reflect_encode_span_cache","iterations":20000,"samples":7,"median_ns_per_iteration":403.3384,"minimum_ns_per_iteration":394.05050000000006,"maximum_ns_per_iteration":419.64815}

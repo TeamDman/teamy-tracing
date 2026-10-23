@@ -55,7 +55,16 @@ impl<'a, W> RecordGuard<'a, W> {
 
 impl<W: Write> Write for RecordGuard<'_, W> {
     fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
-        let result = self.ready()?.writer.write(bytes);
+        let result = self.ready()?.writer.write(bytes).and_then(|count| {
+            if count == 0 && !bytes.is_empty() {
+                Err(io::Error::new(
+                    io::ErrorKind::WriteZero,
+                    "log writer made no progress",
+                ))
+            } else {
+                Ok(count)
+            }
+        });
         if result.is_err() {
             self.failed();
         }
@@ -74,6 +83,7 @@ impl<W: Write> Write for RecordGuard<'_, W> {
             if let Some(state) = self.state.as_mut() {
                 state.failed = true;
             }
+            self.counted = true;
             self.diagnostics
                 .0
                 .flush_errors

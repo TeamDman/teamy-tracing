@@ -13,6 +13,7 @@ mod json_visitor;
 mod record_guard;
 mod serialize_scalar;
 mod shared_writer;
+mod validated_span;
 mod writer_state;
 
 pub use diagnostic_snapshot::DiagnosticSnapshot;

@@ -28,7 +28,9 @@ tracing's responsibility and does not introduce a new field declaration.
 Facet standard mode supplies scalar encoding. A small normalization retains `.0`
 for integral floats, because default Facet otherwise emits integer-looking tokens.
 Finite float spelling, especially exponents, may differ from upstream's zmij output;
-boundary tests check exact f64 round trips. Span caches preserve validated JSON
+boundary tests check exact f64 round trips. Rendered spans are cached in upstream extensions, keyed by exact source bytes;
+updates and external source edits require revalidation. Non-object caches are
+rejected. Span caches preserve validated JSON
 lexemes rather than round-tripping through Facet Value's coercive dynamic numbers.
 
 Flattening moves event fields into the top-level object and preserves duplicates

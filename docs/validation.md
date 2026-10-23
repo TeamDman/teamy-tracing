@@ -1,3 +1,6 @@
+Latest continuation: [Linux qualification and measurements](linux-qualification.md).
+The receipt below is historical Windows evidence, retained unchanged.
+
 # Local validation receipt — 23 October 2026
 
 Platform: Windows x86_64 MSVC, Rust/Cargo 1.96.0. All commands used cached dependencies

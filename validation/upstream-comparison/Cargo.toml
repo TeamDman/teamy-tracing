@@ -25,3 +25,7 @@ disallowed_types = "deny"
 [[bench]]
 name = "formatting"
 harness = false
+
+[[bench]]
+name = "cache_costs"
+harness = false

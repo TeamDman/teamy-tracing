@@ -1,6 +1,7 @@
 use crate::Diagnostics;
 use crate::json_visitor::JsonVisitor;
 use crate::serialize_scalar::serialize_scalar;
+use facet_format::FormatSerializer;
 use facet_json::JsonSerializer;
 use facet_json::RawJson;
 use std::collections::BTreeMap;
@@ -23,7 +24,9 @@ impl FacetJsonFields {
     }
 
     fn merge<R: RecordFields>(&self, previous: &str, fields: R) -> Result<String, fmt::Error> {
-        if previous.contains(['\n', '\r']) {
+        if previous.contains(['\n', '\r'])
+            || (!previous.is_empty() && !previous.trim_start().starts_with('{'))
+        {
             return Err(fmt::Error);
         }
         let mut values: BTreeMap<String, RawJson<'static>> = if previous.is_empty() {
@@ -43,7 +46,18 @@ impl FacetJsonFields {
         );
         fields.record(&mut visitor);
         visitor.finish()?;
-        facet_json::to_string(&values).map_err(|_| fmt::Error)
+        // Values are either parsed RawJson or scalars encoded above. Emit them
+        // directly through Facet instead of reflecting over the map a second time.
+        let mut serializer = JsonSerializer::new();
+        serializer.begin_struct().map_err(|_| fmt::Error)?;
+        for (name, value) in values {
+            serializer.field_key(&name).map_err(|_| fmt::Error)?;
+            serializer
+                .raw_scalar(value.as_str())
+                .map_err(|_| fmt::Error)?;
+        }
+        serializer.end_struct().map_err(|_| fmt::Error)?;
+        String::from_utf8(serializer.finish()).map_err(|_| fmt::Error)
     }
 }
 

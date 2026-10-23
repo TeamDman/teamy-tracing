@@ -1,3 +1,16 @@
+# Linux continuation
+
+The implementation branch now includes validated per-span rendering reuse, direct
+Facet map emission, writer edge-case fixes and 24 behavioral tests. See
+[Linux qualification](linux-qualification.md) for commands, retained before/after
+measurements, memory/concurrency contracts and remaining adoption limits.
+No dependencies or consumer pins changed. Parent coordinates consumer acceptance;
+update-heavy performance, native Tracy/cancellation, actual startup payloads and
+Windows reruns remain explicit follow-up work. Publication is a source checkpoint,
+not package release or approval to change consumers.
+
+The original handoff follows as historical provenance.
+
 # Cloud continuation checkpoint
 
 This initial local implementation is intended to be published as a public MPL-2.0

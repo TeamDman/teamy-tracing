@@ -43,3 +43,25 @@ run the consumer's actual CLI fixtures (typed startup payload, stdout, stderr,
 file append, filtering, close receipts, failure and cancellation), and compare a
 representative release workload. `teamy-profiler` can retain NDJSON beside the Tracy
 capture, but its CPU summaries come from `.tracy`; JSON formatting is a separate cost.
+
+
+## Checkpoint adoption gate
+
+The public implementation branch is source-only (`publish = false`). Pin an audited
+full commit after review; retain the existing upstream subscriber package identity
+and identical owned Facet source URL/revision. The formatter/layer API is unchanged
+by the span cache optimization. Never manipulate its private validated cache; if an
+adapter edits upstream FormattedFields, the next event revalidates the changed bytes.
+
+Before rollout, inspect the sink's DiagnosticSnapshot outside tracing, flush on both
+normal and cancellation shutdown, and treat flush/write failures as incomplete
+logging. Do not call writer inspect/flush or emit tracing from inside its callbacks.
+Reopening an existing file after a partial write requires caller reconciliation of
+the truncated tail; opening a fresh SharedWriter alone does not repair that file.
+
+Review the [Linux measurements](linux-qualification.md): reused spans improved,
+but update-heavy and short-lived spans still trail upstream. Benchmark the consumer's
+actual schema and sinks, account for two extra cached strings per rendered live span,
+and rerun Windows checks where applicable. Native Tracy/cancellation and the real
+startup payload remain unqualified; obtain parent review before adding integration
+dependencies. The existing examples are guidance, not a completed consumer cutover.

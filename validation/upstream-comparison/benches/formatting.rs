@@ -25,6 +25,18 @@ fn workload(scenario: &str, iterations: u64) {
             }
             drop((c, b, a));
         }
+        "span_churn" => {
+            for n in 0..iterations {
+                let _entered = tracing::info_span!("cold", count = black_box(n)).entered();
+                tracing::info!("once");
+            }
+        }
+        "updates_only" => {
+            let span = tracing::info_span!("updated", count = 0, immutable = "context");
+            for n in 0..iterations {
+                span.record("count", black_box(n));
+            }
+        }
         "span_updates" => {
             let span = tracing::info_span!("updated", count = 0, immutable = "context");
             let _entered = span.enter();
@@ -40,7 +52,14 @@ fn workload(scenario: &str, iterations: u64) {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     const ITERATIONS: u64 = 20_000;
     let mut output = std::io::stdout().lock();
-    for scenario in ["disabled", "events", "deep_spans", "span_updates"] {
+    for scenario in [
+        "disabled",
+        "events",
+        "deep_spans",
+        "span_updates",
+        "updates_only",
+        "span_churn",
+    ] {
         let dispatches = [
             teamy_tracing_upstream_comparison::subscriber(false, scenario != "disabled"),
             teamy_tracing_upstream_comparison::subscriber(true, scenario != "disabled"),

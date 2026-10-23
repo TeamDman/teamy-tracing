@@ -200,3 +200,52 @@ fn control_characters_and_unicode_round_trip() {
     let decoded: String = facet_json::from_str(fields["value"].as_str()).unwrap();
     assert_eq!(decoded, value);
 }
+
+#[test]
+fn cached_spans_preserve_all_float_bits_across_updates() {
+    let values = [
+        -0.0,
+        0.0,
+        f64::MAX,
+        f64::MIN_POSITIVE,
+        f64::from_bits(1),
+        1e100,
+    ];
+    let (text, status) = capture(format(), || {
+        let span = tracing::info_span!("floats", value = 0.0, exact = u64::MAX);
+        let _entered = span.enter();
+        for value in values {
+            span.record("value", value);
+            tracing::info!("first");
+            tracing::info!("cached");
+        }
+    });
+    for (index, line) in text.lines().enumerate() {
+        let event = raw(line);
+        let span = raw(event["span"].as_str());
+        let value: f64 = facet_json::from_str(span["value"].as_str()).unwrap();
+        assert_eq!(value.to_bits(), values[index / 2].to_bits());
+        assert_eq!(span["exact"].as_str(), u64::MAX.to_string());
+        assert_eq!(
+            event["spans"].as_str(),
+            format!("[{}]", event["span"].as_str())
+        );
+    }
+    assert_eq!(text.lines().count(), values.len() * 2);
+    assert_eq!(status, Default::default());
+}
+
+#[test]
+fn span_name_collision_and_escaped_names_survive_cache_hits() {
+    let (text, status) = capture(format(), || {
+        let _entered = tracing::info_span!("meta\"\nname", name = "producer").entered();
+        tracing::info!("first");
+        tracing::info!("cached");
+    });
+    for line in text.lines() {
+        assert_eq!(line.matches("\"name\":").count(), 4);
+        assert!(line.contains("meta\\\"\\nname"));
+        let _: Value = facet_json::from_str(line).unwrap();
+    }
+    assert_eq!(status, Default::default());
+}

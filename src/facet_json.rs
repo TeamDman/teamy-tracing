@@ -4,12 +4,11 @@ use crate::FacetJsonFields;
 use crate::json_options::JsonOptions;
 use crate::json_visitor::JsonVisitor;
 use crate::serialize_scalar::serialize_scalar;
+use crate::validated_span::ValidatedSpan;
 use facet_format::FormatSerializer;
 use facet_format::ScalarValue;
 use facet_json::JsonSerializer;
-use facet_json::RawJson;
 use std::borrow::Cow;
-use std::collections::BTreeMap;
 use std::fmt;
 use tracing::Event;
 use tracing::Subscriber;
@@ -105,25 +104,43 @@ fn span_fields<S>(serializer: &mut JsonSerializer, span: &SpanRef<'_, S>) -> fmt
 where
     S: for<'a> LookupSpan<'a>,
 {
-    let extensions = span.extensions();
-    let cached = extensions
-        .get::<FormattedFields<FacetJsonFields>>()
-        .ok_or(fmt::Error)?;
-    if cached.fields.contains(['\n', '\r']) {
-        return Err(fmt::Error);
+    {
+        let extensions = span.extensions();
+        let source = &extensions
+            .get::<FormattedFields<FacetJsonFields>>()
+            .ok_or(fmt::Error)?
+            .fields;
+        if let Some(cached) = extensions.get::<ValidatedSpan>()
+            && cached.source == *source
+        {
+            return serializer
+                .raw_scalar(&cached.encoded)
+                .map_err(|_| fmt::Error);
+        }
     }
-    // Parsing validates the private cache and preserves exact numeric tokens.
-    let fields: BTreeMap<String, RawJson<'static>> =
-        facet_json::from_str(&cached.fields).map_err(|_| fmt::Error)?;
-    serializer.begin_struct().map_err(|_| fmt::Error)?;
-    for (name, value) in fields {
-        serializer.field_key(&name).map_err(|_| fmt::Error)?;
-        serializer
-            .raw_scalar(value.as_str())
-            .map_err(|_| fmt::Error)?;
+    // Recheck under the write lock: another thread may have recorded or rendered
+    // this span after the read lock was released. Never emit stale validation.
+    let mut extensions = span.extensions_mut();
+    let source = extensions
+        .get_mut::<FormattedFields<FacetJsonFields>>()
+        .ok_or(fmt::Error)?
+        .fields
+        .clone();
+    if extensions
+        .get_mut::<ValidatedSpan>()
+        .is_none_or(|cached| cached.source != source)
+    {
+        let validated = ValidatedSpan::new(source, span.metadata().name())?;
+        extensions.replace(validated);
     }
-    string_field(serializer, "name", span.metadata().name())?;
-    serializer.end_struct().map_err(|_| fmt::Error)
+    serializer
+        .raw_scalar(
+            &extensions
+                .get_mut::<ValidatedSpan>()
+                .ok_or(fmt::Error)?
+                .encoded,
+        )
+        .map_err(|_| fmt::Error)
 }
 
 impl<T: FormatTime> FacetJson<T> {
