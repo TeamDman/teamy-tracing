@@ -18,12 +18,16 @@ The compiled `examples/independent_sinks.rs` demonstrates an independently filte
 file with close receipts alongside ordinary stderr. Its in-memory sink keeps the
 example inert; supply the already-opened file in a real application.
 
-`examples/typed_startup` demonstrates retaining typed `argv` as an array through a
-custom `FormatEvent<S, FacetJsonFields>`, delegating ordinary events to `FacetJson`.
-It decodes the reserved field through a known Facet type and reserializes it; it
-does not splice producer JSON. A real template adapter must also preserve its
-timestamp/source fields and account for wrapper failures in its diagnostic policy.
-The example is intentionally a small schema example, not a drop-in template patch.
+`examples/typed_startup` demonstrates retaining typed `argv`, a startup message and
+caller-supplied rich version/build identity through a custom formatter. Timestamp,
+level, target and source metadata are retained; ordinary events delegate to
+FacetJson. It decodes a known Facet schema and reserializes it instead of splicing
+producer JSON. Inspect its separate startup-error counter alongside Diagnostics.
+The fixture emits startup before spans and is not a general context-preserving
+custom envelope. Its schema/target are proposed: the available template revision
+has no typed startup formatter. Obtain the exact newer source before claiming
+consumer compatibility. See [library acceptance](library-acceptance.md) for the
+four executable adapter/sink tests and remaining prerequisites.
 
 Keep all directly referenced Facet crates on the identical Git source reference,
 currently `rev = "23ad4dcd0"`, resolved to full commit

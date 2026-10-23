@@ -1,3 +1,18 @@
+# Bounded Linux library acceptance
+
+The next checkpoint adds realistic proposed typed-startup and independent-sink
+fixtures: 28 behavioral tests, two upstream comparisons, both examples, formatting,
+strict Clippy and graph checks pass. See [acceptance](library-acceptance.md).
+Production library source and dependency manifests/locks are unchanged from e539d15;
+the borrowed-cache optimization was rejected because the pinned map reflection
+requires static types. Repeat measurements claim no new speedup.
+
+The newer consumer startup formatter is not in the provisioned/public template
+revision. Supply its exact source before claiming schema compatibility. Cancellation
+and Tracy sources are cached but absent from the tracing manifests/locks; an isolated
+composition fixture needs reviewed dependency/lock changes. These, actual consumer
+integration and a Windows rerun remain separate. No consumer was edited.
+
 # Linux continuation
 
 The implementation branch now includes validated per-span rendering reuse, direct

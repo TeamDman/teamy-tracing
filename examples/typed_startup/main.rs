@@ -11,10 +11,14 @@ use tracing_subscriber::prelude::*;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let diagnostics = Diagnostics::default();
     let writer = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
+    let formatter = StartupFormatter::new(diagnostics.clone())
+        .with_timer(tracing_subscriber::fmt::time::SystemTime);
     let subscriber = tracing_subscriber::registry().with(
-        teamy_tracing::layer(writer.clone(), diagnostics).event_format(StartupFormatter::default()),
+        teamy_tracing::layer(writer.clone(), diagnostics.clone()).event_format(formatter.clone()),
     );
     let encoded = facet_json::to_string(&StartupFields {
+        message: "Application started".into(),
+        version: "0.1.0 (repo https://example.invalid/tool, branch fixture, rev synthetic, worktree clean, built 2026-10-23T00:00:00Z)".into(),
         argv: vec!["synthetic".into(), "line\nbreak".into()],
     })?;
     tracing::subscriber::with_default(subscriber, || {
@@ -27,5 +31,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let record: startup_record::StartupRecord = facet_json::from_str(first)?;
     assert_eq!(record.fields.argv[1], "line\nbreak");
     assert_eq!(text.lines().count(), 2);
+    assert_eq!(formatter.formatting_errors(), 0);
+    assert_eq!(diagnostics.snapshot(), Default::default());
     Ok(())
 }

@@ -34,13 +34,13 @@ fn measure(mut operation: impl FnMut(), scenario: &str) -> BenchmarkRecord<'_> {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let source = r#"{"count":42,"immutable":"context"}"#;
-    let values: BTreeMap<String, RawJson<'static>> = facet_json::from_str(source)?;
+    let source = String::from(r#"{"count":42,"immutable":"context"}"#);
+    let values: BTreeMap<String, RawJson<'static>> = facet_json::from_str(&source)?;
     let mut output = std::io::stdout().lock();
     let parse = measure(
         || {
             let decoded: BTreeMap<String, RawJson<'static>> =
-                facet_json::from_str(black_box(source)).unwrap();
+                facet_json::from_str(black_box(&source)).unwrap();
             black_box(decoded);
         },
         "parse_span_cache",
@@ -51,7 +51,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         },
         "reflect_encode_span_cache",
     );
-    for record in [parse, encode] {
+    let wide_source = format!(
+        "{{{}}}",
+        (0..16)
+            .map(|n| format!("\"field_{n}\":{n}"))
+            .collect::<Vec<_>>()
+            .join(",")
+    );
+    let wide = measure(
+        || {
+            let decoded: BTreeMap<String, RawJson<'static>> =
+                facet_json::from_str(black_box(&wide_source)).unwrap();
+            black_box(decoded);
+        },
+        "parse_sixteen_field_cache",
+    );
+    for record in [parse, encode, wide] {
         writeln!(output, "{}", facet_json::to_string(&record)?)?;
     }
     output.flush()?;

@@ -1,3 +1,5 @@
+Latest acceptance: [Linux library acceptance](library-acceptance.md), 28 behavioral tests.
+
 Latest continuation: [Linux qualification and measurements](linux-qualification.md).
 The receipt below is historical Windows evidence, retained unchanged.
 
