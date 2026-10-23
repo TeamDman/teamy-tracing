@@ -1,0 +1,51 @@
+# Cloud continuation checkpoint
+
+This initial local implementation is intended to be published as a public MPL-2.0
+source checkpoint on branch `implementation`. Preserve the upstream MIT notice.
+Package publication remains disabled. No consumer was edited, and no environment
+was created. Use the remote commit SHA reported with the handoff; do not assume a
+moving branch still names the same source.
+
+The repository contains all first-party source, examples, tests, policy config,
+both dependency lockfiles, check scripts, benchmark source/results and Linux setup
+proposal. It does not require a desktop-only path dependency. Supply the public
+TeamDman/teamy-docs repository beside it; the inspected guidance revision was
+`50e89d6897ce2a65167ef65b17c5fa83fe849158`. Cargo's owned Facet Git dependencies
+resolve to `23ad4dcd034d123f0c38943305ffb077519040ce`.
+
+## Continue in order
+
+1. Check out the verified immutable library checkpoint and teamy-docs revision.
+   Read AGENTS.md, README.md, schema.md, validation.md and cloud-setup.md.
+2. Provision the proposed Linux toolchains/cache only through the approved
+   environment setup. Run `sh scripts/check.sh`; record that Linux was actually
+   exercised, rather than relying on the Windows receipt.
+3. Inspect normal/build/dev Cargo graphs separately. The separate comparison
+   workspace intentionally enables Serde; the library must not.
+4. Profile the span-heavy cases. Consider a typed-cache companion Layer or a
+   validated cache optimization while preserving updates, per-layer filtering,
+   explicit parent/root semantics, error counters and writer failure policy.
+5. Extend qualification where needed: native cancellation/Tracy composition,
+   poison/write-zero and reentrancy boundaries, optional log facade normalization,
+   actual consumer startup payload and durable file lifecycle. The existing
+   typed-startup example illustrates an adapter; it is not a consumer migration.
+6. Propose consumer adoption after compatibility/performance review. Do not infer
+   crates.io publication or unrelated application changes from this checkpoint.
+
+Existing behavior intentionally differs from upstream for explicit event parents
+and malformed span-cache fallback; see schema.md. Current microbenchmarks are slower
+than upstream, especially with spans. Preserve that evidence until new measurements
+justify a different conclusion.
+
+## Publication audit
+
+The source set was created locally for this library. It contains synthetic fixture
+values, public source coordinates and toolchain/version data. Raw conversation,
+credentials, private review material, machine-specific paths, build caches and
+desktop environment exports are not required inputs and must not be committed.
+The pre-push audit inspected the complete 53-file staged inventory, found no matches
+for credential/private-path/conversation patterns, retained both licenses/notices,
+checked staged whitespace and confirmed `publish = false`. Pattern scanning is
+not a guarantee against every possible secret. No build caches or untracked extras
+were selected for publication.
+Verification of the remote SHA is required before calling the handoff cloud-ready.

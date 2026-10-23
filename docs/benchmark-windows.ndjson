@@ -1,0 +1,8 @@
+{"formatter":"facet_standard","scenario":"disabled","iterations":20000,"samples":7,"median_ns_per_iteration":0.43,"minimum_ns_per_iteration":0.425,"maximum_ns_per_iteration":0.43}
+{"formatter":"upstream_serde","scenario":"disabled","iterations":20000,"samples":7,"median_ns_per_iteration":0.425,"minimum_ns_per_iteration":0.425,"maximum_ns_per_iteration":0.43}
+{"formatter":"facet_standard","scenario":"events","iterations":20000,"samples":7,"median_ns_per_iteration":784.3950000000001,"minimum_ns_per_iteration":660.1,"maximum_ns_per_iteration":791.79}
+{"formatter":"upstream_serde","scenario":"events","iterations":20000,"samples":7,"median_ns_per_iteration":477.135,"minimum_ns_per_iteration":472.315,"maximum_ns_per_iteration":485.545}
+{"formatter":"facet_standard","scenario":"deep_spans","iterations":20000,"samples":7,"median_ns_per_iteration":6977.645,"minimum_ns_per_iteration":6854.855,"maximum_ns_per_iteration":7081.44}
+{"formatter":"upstream_serde","scenario":"deep_spans","iterations":20000,"samples":7,"median_ns_per_iteration":1983.285,"minimum_ns_per_iteration":1961.08,"maximum_ns_per_iteration":2051.36}
+{"formatter":"facet_standard","scenario":"span_updates","iterations":20000,"samples":7,"median_ns_per_iteration":8327.6,"minimum_ns_per_iteration":8239.03,"maximum_ns_per_iteration":8518.135}
+{"formatter":"upstream_serde","scenario":"span_updates","iterations":20000,"samples":7,"median_ns_per_iteration":2293.395,"minimum_ns_per_iteration":2260.015,"maximum_ns_per_iteration":2354.07}

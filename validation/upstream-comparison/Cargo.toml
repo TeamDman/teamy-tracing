@@ -1,0 +1,27 @@
+[package]
+name = "teamy-tracing-upstream-comparison"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+teamy-tracing = { path = "../.." }
+tracing = { version = "0.1.44", default-features = false, features = ["std"] }
+tracing-subscriber = { version = "0.3.23", default-features = false, features = ["fmt", "json", "registry", "env-filter"] }
+facet = { git = "https://github.com/TeamDman/facet.git", rev = "23ad4dcd0" }
+facet-json = { git = "https://github.com/TeamDman/facet.git", rev = "23ad4dcd0" }
+facet-value = { git = "https://github.com/TeamDman/facet.git", rev = "23ad4dcd0" }
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+disallowed_macros = "deny"
+disallowed_methods = "deny"
+disallowed_types = "deny"
+
+[[bench]]
+name = "formatting"
+harness = false

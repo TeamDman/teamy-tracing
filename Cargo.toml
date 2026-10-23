@@ -1,0 +1,35 @@
+[package]
+name = "teamy-tracing"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.96"
+description = "Facet JSON formatting for upstream tracing-subscriber"
+license = "MPL-2.0"
+repository = "https://github.com/TeamDman/teamy-tracing"
+readme = "README.md"
+publish = false
+# Source publication is approved; crates.io publication remains disabled.
+
+[dependencies]
+tracing = { version = "0.1.44", default-features = false, features = ["std"] }
+tracing-subscriber = { version = "0.3.23", default-features = false, features = ["fmt", "registry"] }
+facet-json = { git = "https://github.com/TeamDman/facet.git", rev = "23ad4dcd0", default-features = false }
+facet-format = { git = "https://github.com/TeamDman/facet.git", rev = "23ad4dcd0", default-features = false }
+facet = { git = "https://github.com/TeamDman/facet.git", rev = "23ad4dcd0" }
+
+[dev-dependencies]
+facet-value = { git = "https://github.com/TeamDman/facet.git", rev = "23ad4dcd0" }
+tracing-subscriber = { version = "0.3.23", default-features = false, features = ["env-filter"] }
+tracing-error = "0.2.1"
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "deny"
+unfulfilled_lint_expectations = "deny"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+disallowed_macros = "deny"
+disallowed_methods = "deny"
+disallowed_types = "deny"
+allow_attributes = "deny"
