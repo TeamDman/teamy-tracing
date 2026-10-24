@@ -1,3 +1,4 @@
+use crate::validate_span_cache::validate_span_cache;
 use facet_format::FormatSerializer;
 use facet_format::ScalarValue;
 use facet_json::JsonSerializer;
@@ -16,9 +17,7 @@ pub(crate) struct ValidatedSpan {
 
 impl ValidatedSpan {
     pub fn new(source: String, name: &str) -> Result<Self, fmt::Error> {
-        if source.contains(['\n', '\r']) || !source.trim_start().starts_with('{') {
-            return Err(fmt::Error);
-        }
+        validate_span_cache(&source)?;
         let fields: BTreeMap<String, RawJson<'static>> =
             facet_json::from_str(&source).map_err(|_| fmt::Error)?;
         let mut serializer = JsonSerializer::new();

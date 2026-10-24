@@ -477,3 +477,37 @@ fn disabled_time_and_span_options_skip_failing_unused_components() {
     let _: facet_value::Value = facet_json::from_str(text.trim_end()).unwrap();
     assert_eq!(diagnostics.snapshot(), Default::default());
 }
+
+#[test]
+fn shared_initial_span_cache_failure_is_counted_by_its_initializing_layer() {
+    let first_status = Diagnostics::default();
+    let second_status = Diagnostics::default();
+    let first = SharedWriter::new(Vec::<u8>::new(), first_status.clone());
+    let second = SharedWriter::new(Vec::<u8>::new(), second_status.clone());
+    let subscriber = tracing_subscriber::registry()
+        .with(teamy_tracing::layer(first.clone(), first_status.clone()))
+        .with(teamy_tracing::layer(second.clone(), second_status.clone()));
+    tracing::subscriber::with_default(subscriber, || {
+        let _entered = tracing::info_span!("shared_failure", broken = ?BadDebug).entered();
+        tracing::info!("valid event, empty span fields");
+    });
+    for writer in [&first, &second] {
+        writer.flush().unwrap();
+        let text = String::from_utf8(writer.inspect(Clone::clone).unwrap()).unwrap();
+        assert_eq!(text.lines().count(), 1);
+        assert!(!text.contains("\"broken\":"));
+        assert!(text.contains("\"span\":{\"name\":\"shared_failure\"}"));
+        let _: facet_value::Value = facet_json::from_str(text.trim_end()).unwrap();
+    }
+    let mut errors = [
+        first_status.snapshot().formatting_errors,
+        second_status.snapshot().formatting_errors,
+    ];
+    errors.sort();
+    assert_eq!(errors, [0, 1]);
+    for status in [first_status.snapshot(), second_status.snapshot()] {
+        assert_eq!(status.write_errors, 0);
+        assert_eq!(status.flush_errors, 0);
+        assert_eq!(status.suppressed_records, 0);
+    }
+}

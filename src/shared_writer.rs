@@ -35,7 +35,12 @@ impl<W> SharedWriter<W> {
             diagnostics,
         }
     }
-    /// Inspect the sink without exposing a second unguarded write route.
+    /// Run an observational callback with `&W` while holding the sink mutex.
+    ///
+    /// This does not enforce read-only access: types such as `File` permit writes
+    /// or cloned writing handles through `&W`. Such writes bypass this writer's
+    /// record/counter contract. Do not use those routes or re-enter this writer
+    /// from the callback; re-entry can deadlock.
     pub fn inspect<R>(&self, inspect: impl FnOnce(&W) -> R) -> io::Result<R> {
         let guard = self
             .state

@@ -1,3 +1,6 @@
+Cloud candidate/package review has since completed; see [review](candidate-review.md)
+for findings, fixes and the current checklist. The preparation record below is historical.
+
 # Owned registry release preparation — 23 October 2026
 
 Prepared locally on `release-preparation/owned-registry`, starting from published

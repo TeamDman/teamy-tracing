@@ -86,3 +86,21 @@ as well. The [Linux lifecycle fixture](linux-lifecycle-qualification.md) exercis
 caller-owned cooperative cancellation during an in-flight short write, close
 receipts and shutdown failures. It does not qualify a native cancellation library,
 signals, async task cancellation or the real consumer's shutdown path.
+
+
+## Counter attribution across layers
+
+Upstream stores one `FormattedFields<FacetJsonFields>` extension per span. Multiple
+fmt layers using this same field-formatter type reuse its initial cache; an initial
+span-field failure is counted only by the layer that initializes it. The remaining
+layers can emit the valid empty-context fallback without another error increment.
+Do not assume one span-format error per sink. Record updates can invoke each layer's
+field formatter; counters reflect formatter invocations, not unique spans/events.
+
+Writer failures and suppressed writer requests are attributed to the Diagnostics
+handle supplied to that SharedWriter. Event formatter failures use the formatter's
+handle; custom adapters may have their own counters. Inspect all handles or use an
+intentionally shared aggregate handle. Separate writer counters still identify a
+failed sink, as tested, but a zero formatting counter on one layer does not prove
+that shared span context was originally captured without error. Snapshot fields
+are sampled independently and are not durable-delivery receipts.

@@ -4,7 +4,7 @@ Facet JSON event and span formatting for upstream `tracing-subscriber`. This is 
 library: callers own subscriber installation, filters, terminal ownership and sinks.
 No consumer has been changed. Public source is MPL-2.0 with the applicable upstream
 MIT notice retained. This is a release-preparation checkout, not a crates.io release.
-`publish = false` remains in effect pending review and Windows qualification.
+`publish = false` remains in effect pending release approval and Windows qualification.
 
 ## Installation
 
@@ -79,6 +79,17 @@ rotation, crash durability, or interception of writes performed outside this wri
 An I/O failure can still leave a truncated final line. Tracing macros cannot return
 delivery errors; inspect the typed, Facet-enabled diagnostic snapshot outside logging.
 Do not call `inspect()` recursively from a writer callback: it takes the same mutex.
+Its callback receives `&W`, which does not enforce read-only access for every writer
+(e.g. File). Keep it observational; writes through that reference or a cloned
+handle bypass the record lock/counter contract.
+
+Multiple fmt layers using `FacetJsonFields` share upstream's initial span-field
+cache. An initial span-field formatting failure is counted by the layer that
+initializes that cache, not necessarily once per sink. Writer failures belong to
+the supplied writer's diagnostics; event-format failures belong to the formatter's
+diagnostics. Inspect all configured handles, or deliberately share one handle for
+aggregate accounting. These counters are not a count of lost events or durable
+records, and their independently sampled fields are not an atomic snapshot.
 
 ## Dependencies and validation
 
@@ -121,6 +132,8 @@ run `cargo test --offline --locked`, both examples, `cargo clippy --offline --lo
 --all-targets --no-deps -- -D warnings`, and `cargo doc --offline --locked --no-deps`.
 Populate dependency caches before requesting offline validation.
 
+[Candidate/package review](docs/candidate-review.md) records the completed independent
+review, cache-validation correction, 36 behavioral tests and exact remaining gates.
 [Linux lifecycle qualification](docs/linux-lifecycle-qualification.md) adds cancellation
 boundary and failure-isolation coverage (33 behavioral tests).
 [Registry release preparation](docs/release-preparation.md) records the graph checks,

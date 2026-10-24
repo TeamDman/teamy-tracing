@@ -1,6 +1,7 @@
 use crate::Diagnostics;
 use crate::json_visitor::JsonVisitor;
 use crate::serialize_scalar::serialize_scalar;
+use crate::validate_span_cache::validate_span_cache;
 use facet_format::FormatSerializer;
 use facet_json::JsonSerializer;
 use facet_json::RawJson;
@@ -24,10 +25,8 @@ impl FacetJsonFields {
     }
 
     fn merge<R: RecordFields>(&self, previous: &str, fields: R) -> Result<String, fmt::Error> {
-        if previous.contains(['\n', '\r'])
-            || (!previous.is_empty() && !previous.trim_start().starts_with('{'))
-        {
-            return Err(fmt::Error);
+        if !previous.is_empty() {
+            validate_span_cache(previous)?;
         }
         let mut values: BTreeMap<String, RawJson<'static>> = if previous.is_empty() {
             BTreeMap::new()

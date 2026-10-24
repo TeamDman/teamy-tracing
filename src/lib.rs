@@ -47,6 +47,7 @@ mod json_visitor;
 mod record_guard;
 mod serialize_scalar;
 mod shared_writer;
+mod validate_span_cache;
 mod validated_span;
 mod writer_state;
 

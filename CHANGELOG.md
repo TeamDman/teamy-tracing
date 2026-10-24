@@ -7,6 +7,8 @@
   per-layer filtering, with validated span rendering reuse.
 - Supplied writers, whole-record locking, fail-stop delivery and diagnostic counters.
 - Exact owned registry dependency family: teamy-facet rc.7 and JSON/format/value rc.9.
+- Strict validation of externally changed span caches before raw JSON reuse, plus
+  documented shared-span diagnostic attribution and observational inspect semantics.
 - Linux source/package qualification, executable API/startup examples and documented
   performance limits. Windows release qualification is pending.
 

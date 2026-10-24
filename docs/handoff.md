@@ -1,3 +1,13 @@
+# Completed cloud candidate/package review
+
+Independent review of candidate 76c72efa found and closed a malformed-cache
+validation defect and two documentation issues. The corrected candidate passes
+36 behavioral tests, one doctest, two comparisons, lint/docs/formatting and package
+checks with frozen dependencies. See [candidate review](candidate-review.md) for
+executed evidence, changed performance limits and the precise release checklist.
+Cloud review is complete. Windows qualification and release/version authorization
+remain pending; native integrations remain separately scoped. Do not push/publish.
+
 # Local Linux lifecycle continuation
 
 The frozen owned-registry graph now has 33 behavioral tests plus its API doctest

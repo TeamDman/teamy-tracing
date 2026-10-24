@@ -30,7 +30,10 @@ for integral floats, because default Facet otherwise emits integer-looking token
 Finite float spelling, especially exponents, may differ from upstream's zmij output;
 boundary tests check exact f64 round trips. Rendered spans are cached in upstream extensions, keyed by exact source bytes;
 updates and external source edits require revalidation. Non-object caches are
-rejected. Span caches preserve validated JSON
+rejected. Before raw lexemes are reused, complete event traversal plus strict token
+and end-of-input checks reject malformed containers, numbers, escapes and trailing
+input. Externally edited caches must also fit the pinned parser's scalar limits;
+this is not an arbitrary-precision JSON interface. Span caches preserve validated JSON
 lexemes rather than round-tripping through Facet Value's coercive dynamic numbers.
 
 Flattening moves event fields into the top-level object and preserves duplicates
