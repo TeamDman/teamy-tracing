@@ -51,11 +51,12 @@ capture, but its CPU summaries come from `.tracy`; JSON formatting is a separate
 
 ## Checkpoint adoption gate
 
-The public implementation branch is source-only (`publish = false`). Pin an audited
-full commit after review; retain the existing upstream subscriber package identity
-and the approved exact owned registry dependency family. The formatter/layer API is unchanged
-by the span cache optimization. Never manipulate its private validated cache; if an
-adapter edits upstream FormattedFields, the next event revalidates the changed bytes.
+For an unpublished checkout, pin an audited full commit after review. For the
+registry release, use the exact published `teamy-tracing` version. Retain the
+existing upstream subscriber package identity and approved exact owned registry
+dependency family. The formatter/layer API is unchanged by the span cache
+optimization. Never manipulate its private validated cache; if an adapter edits
+upstream FormattedFields, the next event revalidates the changed bytes.
 
 Before rollout, inspect the sink's DiagnosticSnapshot outside tracing, flush on both
 normal and cancellation shutdown, and treat flush/write failures as incomplete

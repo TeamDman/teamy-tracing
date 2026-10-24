@@ -19,5 +19,3 @@ registry source provenance identifies `teamy-facet` at
 `642d268fc01eced0a861bded044342ff88733eec` (TeamDman/facet-format).
 These are dependencies, not source copied into this library. The old Git pin
 `23ad4dcd034d123f0c38943305ffb077519040ce` applies only to historical receipts.
-Review the final distribution and resolved dependencies before publication.
-Package publication remains disabled.

@@ -7,10 +7,8 @@ description = "Facet JSON formatting for upstream tracing-subscriber"
 license = "MPL-2.0"
 repository = "https://github.com/TeamDman/teamy-tracing"
 readme = "README.md"
-publish = false
 # Maintainer gates and the isolated comparison workspace run only from a checkout.
 exclude = ["/scripts", "/validation", "/AGENTS.md"]
-# Release preparation only; pushes and crates.io publication require separate review.
 
 [dependencies]
 tracing = { version = "0.1.44", default-features = false, features = ["std"] }

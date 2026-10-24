@@ -6,5 +6,6 @@ Never emit tracing events from formatters or writers: that can recurse.
 Run the documented offline formatting, Clippy, behavioral and graph checks.
 Preserve the upstream MIT notice alongside the first-party MPL-2.0 license.
 On release-preparation branches, commit locally only unless separately authorized
-to push. Crates.io publication remains disabled.
+to push. Each crates.io release requires explicit version-specific authorization,
+Windows qualification, clean package review and a suitable scoped credential.
 Do not edit or upgrade consumers as part of library changes without authorization.

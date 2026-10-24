@@ -2,13 +2,19 @@
 
 Facet JSON event and span formatting for upstream `tracing-subscriber`. This is a
 library: callers own subscriber installation, filters, terminal ownership and sinks.
-No consumer has been changed. Public source is MPL-2.0 with the applicable upstream
-MIT notice retained. This is a release-preparation checkout, not a crates.io release.
-`publish = false` remains in effect pending release approval and Windows qualification.
+Public source is MPL-2.0 with the applicable upstream MIT notice retained.
+The 0.1.0 distribution uses the exact owned Facet registry dependencies below.
 
 ## Installation
 
-Use the reviewed local checkout while publication remains disabled:
+For the registry release, depend on the published version:
+
+```toml
+[dependencies]
+teamy-tracing = "=0.1.0"
+```
+
+To review an unpublished checkout or develop against local changes, use:
 
 ```toml
 [dependencies]
@@ -17,9 +23,7 @@ tracing = { version = "0.1.44", default-features = false, features = ["std"] }
 tracing-subscriber = { version = "0.3.23", default-features = false, features = ["fmt", "registry"] }
 ```
 
-After an approved release, replace the path dependency with the published version.
-`0.1.0` is the current candidate, not an announcement that it is available on
-crates.io. The same public API applies to the packaged crate. Applications own
+The same public API applies to the packaged crate. Applications own
 subscriber installation and may opt into upstream `env-filter` or text features.
 Adding upstream `json` elsewhere can reintroduce Serde through feature unification.
 
