@@ -121,7 +121,9 @@ run `cargo test --offline --locked`, both examples, `cargo clippy --offline --lo
 --all-targets --no-deps -- -D warnings`, and `cargo doc --offline --locked --no-deps`.
 Populate dependency caches before requesting offline validation.
 
-[Registry release preparation](docs/release-preparation.md) records current checks,
+[Linux lifecycle qualification](docs/linux-lifecycle-qualification.md) adds cancellation
+boundary and failure-isolation coverage (33 behavioral tests).
+[Registry release preparation](docs/release-preparation.md) records the graph checks,
 package verification and remaining release gates. [Library acceptance](docs/library-acceptance.md)
 and [Linux qualification](docs/linux-qualification.md) retain historical Git-baseline
 coverage and measurements. The startup adapter is illustrative, not qualified

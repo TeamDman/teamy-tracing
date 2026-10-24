@@ -1,3 +1,13 @@
+# Local Linux lifecycle continuation
+
+The frozen owned-registry graph now has 33 behavioral tests plus its API doctest
+and upstream comparisons. New coverage qualifies in-flight caller cancellation,
+sink failure isolation, Interrupted writes, transactional span-update failures and
+unused formatter options. See [lifecycle qualification](linux-lifecycle-qualification.md).
+No production implementation, dependency or toolchain changes were needed. Windows,
+release review and separately owned consumer integration remain outstanding.
+Commit locally only; publication remains disabled and no push is authorized.
+
 # Local registry release preparation
 
 The dedicated `release-preparation/owned-registry` branch migrates both workspaces

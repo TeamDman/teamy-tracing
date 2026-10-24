@@ -412,3 +412,68 @@ fn enabled_sinks_keep_filtered_span_scopes_independent() {
     assert!(debug.lines().last().unwrap().contains("\"value\":2"));
     assert_eq!(diagnostics.snapshot(), Default::default());
 }
+
+#[path = "support/prefix_bad_debug.rs"]
+mod prefix_bad_debug;
+
+#[test]
+fn partial_debug_failure_rolls_back_the_entire_multi_field_update() {
+    let diagnostics = Diagnostics::default();
+    let writer = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
+    let subscriber = tracing_subscriber::registry()
+        .with(teamy_tracing::layer(writer.clone(), diagnostics.clone()));
+    tracing::subscriber::with_default(subscriber, || {
+        let span = tracing::info_span!("transaction", a = 1u64, b = "previous");
+        let _entered = span.enter();
+        tracing::info!("warm cache");
+        let fields = span.metadata().unwrap().fields();
+        let a = fields.field("a").unwrap();
+        let b = fields.field("b").unwrap();
+        let broken = tracing::field::debug(prefix_bad_debug::PrefixBadDebug);
+        span.record_all(&fields.value_set(&[
+            (&a, Some(&2u64 as &dyn tracing::field::Value)),
+            (&b, Some(&broken as &dyn tracing::field::Value)),
+        ]));
+        tracing::info!("after failed update");
+        tracing::info!(value = ?prefix_bad_debug::PrefixBadDebug);
+        span.record("a", 3u64);
+        tracing::info!("after valid update");
+    });
+    let text = String::from_utf8(writer.inspect(Clone::clone).unwrap()).unwrap();
+    let lines: Vec<_> = text.lines().collect();
+    assert_eq!(lines.len(), 3);
+    assert!(lines[1].contains("\"a\":1"));
+    assert!(lines[1].contains("\"b\":\"previous\""));
+    assert!(lines[2].contains("\"a\":3"));
+    assert!(!text.contains("must not leak this prefix"));
+    for line in lines {
+        let _: facet_value::Value = facet_json::from_str(line).unwrap();
+    }
+    assert_eq!(diagnostics.snapshot().formatting_errors, 2);
+}
+
+#[test]
+fn disabled_time_and_span_options_skip_failing_unused_components() {
+    let diagnostics = Diagnostics::default();
+    let writer = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
+    let formatter = FacetJson::default()
+        .with_timer(FailingTime)
+        .without_time()
+        .with_current_span(false)
+        .with_span_list(false)
+        .with_diagnostics(diagnostics.clone());
+    let subscriber = tracing_subscriber::registry()
+        .with(teamy_tracing::layer(writer.clone(), diagnostics.clone()).event_format(formatter))
+        .with(corrupt_cache_layer::CorruptCacheLayer);
+    tracing::subscriber::with_default(subscriber, || {
+        let _entered = tracing::info_span!("corrupted").entered();
+        tracing::info!("no context requested");
+    });
+    let text = String::from_utf8(writer.inspect(Clone::clone).unwrap()).unwrap();
+    assert_eq!(text.lines().count(), 1);
+    assert!(!text.contains("\"timestamp\":"));
+    assert!(!text.contains("\"span\":"));
+    assert!(!text.contains("\"spans\":"));
+    let _: facet_value::Value = facet_json::from_str(text.trim_end()).unwrap();
+    assert_eq!(diagnostics.snapshot(), Default::default());
+}

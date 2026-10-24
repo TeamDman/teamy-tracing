@@ -69,3 +69,20 @@ actual schema and sinks, account for two extra cached strings per rendered live 
 and rerun Windows checks where applicable. Native Tracy/cancellation and the real
 startup payload remain unqualified; obtain parent review before adding integration
 dependencies. The existing examples are guidance, not a completed consumer cutover.
+
+## Cooperative shutdown boundary
+
+Cancellation belongs to the application. Check it at safe worker boundaries;
+teamy-tracing does not accept a token or interrupt an underlying synchronous write.
+Stop and join producers, then drop entered guards and remaining span handles so any
+requested close receipts are emitted, and only then flush each sink explicitly.
+A successful flush does not stop other owners from emitting later events. Do not
+flush from a writer callback or while holding that writer's guard.
+
+Treat a failed shutdown flush as incomplete delivery and inspect that sink's
+Diagnostics outside tracing. Separate diagnostic handles let one failed sink be
+distinguished from another healthy one; include any custom startup-adapter counter
+as well. The [Linux lifecycle fixture](linux-lifecycle-qualification.md) exercises
+caller-owned cooperative cancellation during an in-flight short write, close
+receipts and shutdown failures. It does not qualify a native cancellation library,
+signals, async task cancellation or the real consumer's shutdown path.
