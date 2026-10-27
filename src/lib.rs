@@ -12,7 +12,7 @@
 //! let diagnostics = Diagnostics::default();
 //! let writer = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
 //! let subscriber = tracing_subscriber::registry()
-//!     .with(teamy_tracing::layer(writer.clone(), diagnostics.clone()));
+//!     .with(teamy_tracing::json_layer(writer.clone(), diagnostics.clone()));
 //! tracing::subscriber::with_default(subscriber, || {
 //!     let span = tracing::info_span!("operation", completed = 0u64);
 //!     let _entered = span.enter();
@@ -24,7 +24,7 @@
 //! ```
 //!
 //! [`FacetJson`] controls JSON settings; replacing upstream's formatter does not
-//! inherit upstream `Format` options. [`layer`] disables ANSI and plain-text
+//! inherit upstream `Format` options. [`json_layer`] disables ANSI and plain-text
 //! internal-error fallback. Apply filters independently to each layer.
 //!
 //! [`SharedWriter`] serializes whole-record writes and stops delivery after an
@@ -59,7 +59,7 @@ pub use record_guard::RecordGuard;
 pub use shared_writer::SharedWriter;
 
 /// Construct a compact JSON layer with no ANSI or plain-text fallback diagnostics.
-pub fn layer<S, W>(
+pub fn json_layer<S, W>(
     writer: W,
     diagnostics: Diagnostics,
 ) -> tracing_subscriber::fmt::Layer<S, FacetJsonFields, FacetJson, W>

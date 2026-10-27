@@ -19,10 +19,9 @@ use tracing_subscriber::prelude::*;
 fn concurrent_short_writes_keep_records_whole() {
     let diagnostics = Diagnostics::default();
     let writer = SharedWriter::new(PartialWriter::default(), diagnostics.clone());
-    let dispatch = tracing::Dispatch::new(
-        tracing_subscriber::registry()
-            .with(teamy_tracing::layer(writer.clone(), diagnostics.clone())),
-    );
+    let dispatch = tracing::Dispatch::new(tracing_subscriber::registry().with(
+        teamy_tracing::json_layer(writer.clone(), diagnostics.clone()),
+    ));
     std::thread::scope(|scope| {
         for thread in 0..4 {
             let dispatch = dispatch.clone();
@@ -55,8 +54,10 @@ fn partial_io_failure_stops_later_records_and_is_observable() {
         },
         diagnostics.clone(),
     );
-    let subscriber = tracing_subscriber::registry()
-        .with(teamy_tracing::layer(writer.clone(), diagnostics.clone()));
+    let subscriber = tracing_subscriber::registry().with(teamy_tracing::json_layer(
+        writer.clone(),
+        diagnostics.clone(),
+    ));
     tracing::subscriber::with_default(subscriber, || {
         tracing::info!("first");
         tracing::info!("must not append");
@@ -79,8 +80,10 @@ fn flush_failure_is_explicit_and_stops_delivery() {
         diagnostics.clone(),
     );
     assert!(writer.flush().is_err());
-    let subscriber = tracing_subscriber::registry()
-        .with(teamy_tracing::layer(writer.clone(), diagnostics.clone()));
+    let subscriber = tracing_subscriber::registry().with(teamy_tracing::json_layer(
+        writer.clone(),
+        diagnostics.clone(),
+    ));
     tracing::subscriber::with_default(subscriber, || tracing::info!("suppressed"));
     assert_eq!(diagnostics.snapshot().flush_errors, 1);
     assert_eq!(diagnostics.snapshot().suppressed_records, 1);
@@ -90,7 +93,7 @@ fn flush_failure_is_explicit_and_stops_delivery() {
 fn timer_failure_drops_entire_event_without_plaintext_fallback() {
     let diagnostics = Diagnostics::default();
     let writer = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
-    let layer = teamy_tracing::layer(writer.clone(), diagnostics.clone()).event_format(
+    let layer = teamy_tracing::json_layer(writer.clone(), diagnostics.clone()).event_format(
         FacetJson::default()
             .with_timer(FailingTime)
             .with_diagnostics(diagnostics.clone()),
@@ -106,8 +109,10 @@ fn timer_failure_drops_entire_event_without_plaintext_fallback() {
 fn bad_debug_drops_event_and_keeps_span_cache_valid() {
     let diagnostics = Diagnostics::default();
     let writer = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
-    let subscriber = tracing_subscriber::registry()
-        .with(teamy_tracing::layer(writer.clone(), diagnostics.clone()));
+    let subscriber = tracing_subscriber::registry().with(teamy_tracing::json_layer(
+        writer.clone(),
+        diagnostics.clone(),
+    ));
     tracing::subscriber::with_default(subscriber, || {
         tracing::info!(broken = ?BadDebug);
         let span = tracing::info_span!("bad_span", value = ?BadDebug);
@@ -131,12 +136,12 @@ fn independent_filters_error_layer_and_span_close_compose() {
     let diagnostics = Diagnostics::default();
     let terminal = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
     let file = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
-    let mut file_layer = teamy_tracing::layer(file.clone(), diagnostics.clone());
+    let mut file_layer = teamy_tracing::json_layer(file.clone(), diagnostics.clone());
     file_layer.set_span_events(FmtSpan::CLOSE);
     let subscriber = tracing_subscriber::registry()
         .with(tracing_error::ErrorLayer::default())
         .with(
-            teamy_tracing::layer(terminal.clone(), diagnostics.clone())
+            teamy_tracing::json_layer(terminal.clone(), diagnostics.clone())
                 .with_filter(tracing_subscriber::EnvFilter::new("off")),
         )
         .with(file_layer.with_filter(tracing_subscriber::EnvFilter::new("debug")));
@@ -159,7 +164,10 @@ fn corrupt_multiline_cache_drops_event_instead_of_breaking_ndjson() {
     let diagnostics = Diagnostics::default();
     let writer = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
     let subscriber = tracing_subscriber::registry()
-        .with(teamy_tracing::layer(writer.clone(), diagnostics.clone()))
+        .with(teamy_tracing::json_layer(
+            writer.clone(),
+            diagnostics.clone(),
+        ))
         .with(corrupt_cache_layer::CorruptCacheLayer);
     tracing::subscriber::with_default(subscriber, || {
         let _entered = tracing::info_span!("corrupted").entered();
@@ -183,7 +191,10 @@ fn warmed_cache_revalidates_external_changes() {
         let diagnostics = Diagnostics::default();
         let writer = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
         let subscriber = tracing_subscriber::registry()
-            .with(teamy_tracing::layer(writer.clone(), diagnostics.clone()))
+            .with(teamy_tracing::json_layer(
+                writer.clone(),
+                diagnostics.clone(),
+            ))
             .with(cache_mutation_layer::CacheMutationLayer(replacement));
         tracing::subscriber::with_default(subscriber, || {
             let span = tracing::info_span!("cached", value = 1);
@@ -239,8 +250,10 @@ fn poisoned_sink_suppresses_records_without_recovering() {
         let _ = writer.inspect(|_| panic!("synthetic panic while lock held"));
     });
     assert!(panic.is_err());
-    let subscriber = tracing_subscriber::registry()
-        .with(teamy_tracing::layer(writer.clone(), diagnostics.clone()));
+    let subscriber = tracing_subscriber::registry().with(teamy_tracing::json_layer(
+        writer.clone(),
+        diagnostics.clone(),
+    ));
     tracing::subscriber::with_default(subscriber, || {
         tracing::info!("suppressed one");
         tracing::info!("suppressed two");
@@ -254,10 +267,9 @@ fn poisoned_sink_suppresses_records_without_recovering() {
 fn concurrent_recording_and_cache_reads_remain_valid_and_observe_final_update() {
     let diagnostics = Diagnostics::default();
     let writer = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
-    let dispatch = tracing::Dispatch::new(
-        tracing_subscriber::registry()
-            .with(teamy_tracing::layer(writer.clone(), diagnostics.clone())),
-    );
+    let dispatch = tracing::Dispatch::new(tracing_subscriber::registry().with(
+        teamy_tracing::json_layer(writer.clone(), diagnostics.clone()),
+    ));
     tracing::dispatcher::with_default(&dispatch, || {
         let span = tracing::info_span!("shared", count = 0u64, exact = u64::MAX);
         std::thread::scope(|scope| {
@@ -349,8 +361,10 @@ fn file_append_flush_and_reopen_preserve_ndjson_records() {
     let writer = SharedWriter::new(file, diagnostics.clone());
     for message in ["first", "second"] {
         tracing::subscriber::with_default(
-            tracing_subscriber::registry()
-                .with(teamy_tracing::layer(writer.clone(), diagnostics.clone())),
+            tracing_subscriber::registry().with(teamy_tracing::json_layer(
+                writer.clone(),
+                diagnostics.clone(),
+            )),
             || tracing::info!(message),
         );
         writer.flush().unwrap();
@@ -361,8 +375,10 @@ fn file_append_flush_and_reopen_preserve_ndjson_records() {
         diagnostics.clone(),
     );
     tracing::subscriber::with_default(
-        tracing_subscriber::registry()
-            .with(teamy_tracing::layer(writer.clone(), diagnostics.clone())),
+        tracing_subscriber::registry().with(teamy_tracing::json_layer(
+            writer.clone(),
+            diagnostics.clone(),
+        )),
         || tracing::info!("reopened"),
     );
     writer.flush().unwrap();
@@ -384,11 +400,11 @@ fn enabled_sinks_keep_filtered_span_scopes_independent() {
     let debug = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
     let subscriber = tracing_subscriber::registry()
         .with(
-            teamy_tracing::layer(info.clone(), diagnostics.clone())
+            teamy_tracing::json_layer(info.clone(), diagnostics.clone())
                 .with_filter(tracing_subscriber::filter::LevelFilter::INFO),
         )
         .with(
-            teamy_tracing::layer(debug.clone(), diagnostics.clone())
+            teamy_tracing::json_layer(debug.clone(), diagnostics.clone())
                 .with_filter(tracing_subscriber::filter::LevelFilter::DEBUG),
         );
     tracing::subscriber::with_default(subscriber, || {
@@ -420,8 +436,10 @@ mod prefix_bad_debug;
 fn partial_debug_failure_rolls_back_the_entire_multi_field_update() {
     let diagnostics = Diagnostics::default();
     let writer = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
-    let subscriber = tracing_subscriber::registry()
-        .with(teamy_tracing::layer(writer.clone(), diagnostics.clone()));
+    let subscriber = tracing_subscriber::registry().with(teamy_tracing::json_layer(
+        writer.clone(),
+        diagnostics.clone(),
+    ));
     tracing::subscriber::with_default(subscriber, || {
         let span = tracing::info_span!("transaction", a = 1u64, b = "previous");
         let _entered = span.enter();
@@ -463,7 +481,9 @@ fn disabled_time_and_span_options_skip_failing_unused_components() {
         .with_span_list(false)
         .with_diagnostics(diagnostics.clone());
     let subscriber = tracing_subscriber::registry()
-        .with(teamy_tracing::layer(writer.clone(), diagnostics.clone()).event_format(formatter))
+        .with(
+            teamy_tracing::json_layer(writer.clone(), diagnostics.clone()).event_format(formatter),
+        )
         .with(corrupt_cache_layer::CorruptCacheLayer);
     tracing::subscriber::with_default(subscriber, || {
         let _entered = tracing::info_span!("corrupted").entered();
@@ -485,8 +505,14 @@ fn shared_initial_span_cache_failure_is_counted_by_its_initializing_layer() {
     let first = SharedWriter::new(Vec::<u8>::new(), first_status.clone());
     let second = SharedWriter::new(Vec::<u8>::new(), second_status.clone());
     let subscriber = tracing_subscriber::registry()
-        .with(teamy_tracing::layer(first.clone(), first_status.clone()))
-        .with(teamy_tracing::layer(second.clone(), second_status.clone()));
+        .with(teamy_tracing::json_layer(
+            first.clone(),
+            first_status.clone(),
+        ))
+        .with(teamy_tracing::json_layer(
+            second.clone(),
+            second_status.clone(),
+        ));
     tracing::subscriber::with_default(subscriber, || {
         let _entered = tracing::info_span!("shared_failure", broken = ?BadDebug).entered();
         tracing::info!("valid event, empty span fields");

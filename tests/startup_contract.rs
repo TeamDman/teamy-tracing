@@ -72,13 +72,13 @@ fn typed_startup_two_ndjson_sinks_preserve_independent_filters_and_close_policy(
         let terminal = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
         let file = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
         let formatter = StartupFormatter::new(diagnostics.clone()).with_timer(FixedTime);
-        let mut file_layer =
-            teamy_tracing::layer(file.clone(), diagnostics.clone()).event_format(formatter.clone());
+        let mut file_layer = teamy_tracing::json_layer(file.clone(), diagnostics.clone())
+            .event_format(formatter.clone());
         file_layer.set_span_events(FmtSpan::CLOSE);
         let subscriber = tracing_subscriber::registry()
             .with(tracing_error::ErrorLayer::default())
             .with(
-                teamy_tracing::layer(terminal.clone(), diagnostics.clone())
+                teamy_tracing::json_layer(terminal.clone(), diagnostics.clone())
                     .event_format(formatter.clone())
                     .with_filter(filter(terminal_filter)),
             )
@@ -114,8 +114,8 @@ fn text_terminal_and_typed_file_keep_result_stream_and_filters_independent() {
     let terminal = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
     let file = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
     let formatter = StartupFormatter::new(diagnostics.clone()).with_timer(FixedTime);
-    let mut file_layer =
-        teamy_tracing::layer(file.clone(), diagnostics.clone()).event_format(formatter.clone());
+    let mut file_layer = teamy_tracing::json_layer(file.clone(), diagnostics.clone())
+        .event_format(formatter.clone());
     file_layer.set_span_events(FmtSpan::CLOSE);
     let subscriber = tracing_subscriber::registry()
         .with(
@@ -152,7 +152,8 @@ fn malformed_reserved_payloads_drop_whole_records_and_count_adapter_failures() {
     let writer = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
     let formatter = StartupFormatter::new(diagnostics.clone()).with_timer(FixedTime);
     let subscriber = tracing_subscriber::registry().with(
-        teamy_tracing::layer(writer.clone(), diagnostics.clone()).event_format(formatter.clone()),
+        teamy_tracing::json_layer(writer.clone(), diagnostics.clone())
+            .event_format(formatter.clone()),
     );
     tracing::subscriber::with_default(subscriber, || {
         for encoded in [
@@ -180,7 +181,8 @@ fn startup_and_fallback_timer_failures_are_accounted_separately() {
     let formatter =
         StartupFormatter::new(diagnostics.clone()).with_timer(failing_time::FailingTime);
     let subscriber = tracing_subscriber::registry().with(
-        teamy_tracing::layer(writer.clone(), diagnostics.clone()).event_format(formatter.clone()),
+        teamy_tracing::json_layer(writer.clone(), diagnostics.clone())
+            .event_format(formatter.clone()),
     );
     tracing::subscriber::with_default(subscriber, || {
         let encoded = facet_json::to_string(&payload()).unwrap();

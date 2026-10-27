@@ -34,7 +34,7 @@ fn cooperative_cancellation_finishes_in_flight_record_closes_span_and_checks_flu
             },
             diagnostics.clone(),
         );
-        let mut layer = teamy_tracing::layer(writer.clone(), diagnostics.clone());
+        let mut layer = teamy_tracing::json_layer(writer.clone(), diagnostics.clone());
         layer.set_span_events(FmtSpan::CLOSE);
         let dispatch = tracing::Dispatch::new(tracing_subscriber::registry().with(layer));
         let cancellation = Arc::new(AtomicBool::new(false));
@@ -99,11 +99,11 @@ fn one_failed_sink_does_not_stop_an_independently_filtered_healthy_sink() {
             tracing::Dispatch::new(
                 tracing_subscriber::registry()
                     .with(
-                        teamy_tracing::layer(failed.clone(), failed_status.clone())
+                        teamy_tracing::json_layer(failed.clone(), failed_status.clone())
                             .with_filter(tracing_subscriber::filter::LevelFilter::INFO),
                     )
                     .with(
-                        teamy_tracing::layer(healthy.clone(), healthy_status.clone())
+                        teamy_tracing::json_layer(healthy.clone(), healthy_status.clone())
                             .with_filter(tracing_subscriber::filter::LevelFilter::DEBUG),
                     ),
             )
@@ -111,11 +111,11 @@ fn one_failed_sink_does_not_stop_an_independently_filtered_healthy_sink() {
             tracing::Dispatch::new(
                 tracing_subscriber::registry()
                     .with(
-                        teamy_tracing::layer(healthy.clone(), healthy_status.clone())
+                        teamy_tracing::json_layer(healthy.clone(), healthy_status.clone())
                             .with_filter(tracing_subscriber::filter::LevelFilter::DEBUG),
                     )
                     .with(
-                        teamy_tracing::layer(failed.clone(), failed_status.clone())
+                        teamy_tracing::json_layer(failed.clone(), failed_status.clone())
                             .with_filter(tracing_subscriber::filter::LevelFilter::INFO),
                     ),
             )
@@ -144,8 +144,10 @@ fn interrupted_short_writes_retry_without_poisoning_the_sink() {
     let diagnostics = Diagnostics::default();
     let writer = SharedWriter::new(InterruptedWriter::default(), diagnostics.clone());
     tracing::subscriber::with_default(
-        tracing_subscriber::registry()
-            .with(teamy_tracing::layer(writer.clone(), diagnostics.clone())),
+        tracing_subscriber::registry().with(teamy_tracing::json_layer(
+            writer.clone(),
+            diagnostics.clone(),
+        )),
         || {
             tracing::info!("first");
             tracing::info!("second");

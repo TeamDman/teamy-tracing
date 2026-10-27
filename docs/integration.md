@@ -6,7 +6,7 @@ from active Bend/Vox work. Keep `tracing-subscriber` from crates.io, with
 `ansi` requirements; remove `json` only when no remaining code calls `.json()`,
 `Json`, `JsonFields`, or a wrapper that still delegates to them.
 
-Use `teamy_tracing::layer(writer, diagnostics)` for NDJSON. Reuse upstream text
+Use `teamy_tracing::json_layer(writer, diagnostics)` for NDJSON. Reuse upstream text
 layers and per-layer filters. Put formatter options on `FacetJson`, because replacing
 upstream `Format` does not transfer its target/time/source configuration. After
 construction, `set_span_events(FmtSpan::CLOSE)` enables the file's timing receipts.

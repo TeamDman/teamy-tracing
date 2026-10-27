@@ -19,7 +19,7 @@ pub fn subscriber(upstream: bool, enabled: bool) -> tracing::Dispatch {
     } else {
         tracing::Dispatch::new(
             tracing_subscriber::registry().with(
-                teamy_tracing::layer(std::io::sink, Diagnostics::default())
+                teamy_tracing::json_layer(std::io::sink, Diagnostics::default())
                     .event_format(FacetJson::default().without_time().with_target(false))
                     .with_filter(tracing_subscriber::EnvFilter::new(filter)),
             ),

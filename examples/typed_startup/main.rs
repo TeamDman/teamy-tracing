@@ -14,7 +14,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let formatter = StartupFormatter::new(diagnostics.clone())
         .with_timer(tracing_subscriber::fmt::time::SystemTime);
     let subscriber = tracing_subscriber::registry().with(
-        teamy_tracing::layer(writer.clone(), diagnostics.clone()).event_format(formatter.clone()),
+        teamy_tracing::json_layer(writer.clone(), diagnostics.clone())
+            .event_format(formatter.clone()),
     );
     let encoded = facet_json::to_string(&StartupFields {
         message: "Application started".into(),

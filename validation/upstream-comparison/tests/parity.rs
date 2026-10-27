@@ -19,7 +19,7 @@ fn records(upstream: bool, flatten: bool, emit: fn()) -> Vec<Value> {
         tracing::subscriber::with_default(subscriber, emit);
     } else {
         let subscriber = tracing_subscriber::registry().with(
-            teamy_tracing::layer(writer.clone(), diagnostics.clone()).event_format(
+            teamy_tracing::json_layer(writer.clone(), diagnostics.clone()).event_format(
                 FacetJson::default()
                     .without_time()
                     .with_target(false)

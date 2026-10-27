@@ -34,7 +34,10 @@ fn malformed_nested_cache_and_trailing_input_fail_events_and_updates() {
         let diagnostics = Diagnostics::default();
         let writer = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
         let subscriber = tracing_subscriber::registry()
-            .with(teamy_tracing::layer(writer.clone(), diagnostics.clone()))
+            .with(teamy_tracing::json_layer(
+                writer.clone(),
+                diagnostics.clone(),
+            ))
             .with(cache_mutation_layer::CacheMutationLayer(source));
         tracing::subscriber::with_default(subscriber, || {
             let span = tracing::info_span!("cache", value = 0u64);
@@ -58,7 +61,10 @@ fn valid_nested_cache_preserves_lexemes_and_string_delimiters() {
     let diagnostics = Diagnostics::default();
     let writer = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
     let subscriber = tracing_subscriber::registry()
-        .with(teamy_tracing::layer(writer.clone(), diagnostics.clone()))
+        .with(teamy_tracing::json_layer(
+            writer.clone(),
+            diagnostics.clone(),
+        ))
         .with(cache_mutation_layer::CacheMutationLayer(source));
     tracing::subscriber::with_default(subscriber, || {
         let span = tracing::info_span!("cache", value = 0u64);

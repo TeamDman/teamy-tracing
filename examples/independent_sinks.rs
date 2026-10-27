@@ -7,7 +7,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Substitute a caller-opened append-mode File in an application.
     let diagnostics = Diagnostics::default();
     let file = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
-    let mut file_layer = teamy_tracing::layer(file.clone(), diagnostics.clone());
+    let mut file_layer = teamy_tracing::json_layer(file.clone(), diagnostics.clone());
     file_layer.set_span_events(FmtSpan::CLOSE);
     let subscriber = tracing_subscriber::registry()
         .with(

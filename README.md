@@ -11,7 +11,7 @@ For the registry release, depend on the published version:
 
 ```toml
 [dependencies]
-teamy-tracing = "=0.1.0"
+teamy-tracing = "=0.2.0"
 ```
 
 To review an unpublished checkout or develop against local changes, use:
@@ -36,7 +36,7 @@ use tracing_subscriber::prelude::*;
 let diagnostics = Diagnostics::default();
 let writer = SharedWriter::new(Vec::<u8>::new(), diagnostics.clone());
 let subscriber = tracing_subscriber::registry()
-    .with(teamy_tracing::layer(writer.clone(), diagnostics.clone()));
+    .with(teamy_tracing::json_layer(writer.clone(), diagnostics.clone()));
 tracing::subscriber::with_default(subscriber, || {
     let span = tracing::info_span!("import", completed = 0);
     let _entered = span.enter();

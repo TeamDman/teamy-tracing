@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 — 2026-10-27
+
+- Rename the public JSON layer constructor from `layer` to `json_layer`.
+  Update callers to `teamy_tracing::json_layer(writer, diagnostics)`.
+- This pre-1.0 minor release intentionally removes the ambiguous old name;
+  no alias is retained. Existing 0.1 requirements remain on the 0.1 release line.
+- Formatting, writer behavior, public generic bounds and dependency pins are unchanged.
+
 ## 0.1.0 — 2026-10-24
 
 - Facet JSON event/span formatting using upstream tracing-subscriber interfaces.
