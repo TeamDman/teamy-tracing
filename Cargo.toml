@@ -16,6 +16,18 @@ tracing-subscriber = { version = "0.3.23", default-features = false, features = 
 facet-json = { package = "teamy-facet-json", version = "=0.50.0-rc.9", default-features = false }
 facet-format = { package = "teamy-facet-format", version = "=0.50.0-rc.9", default-features = false }
 facet = { package = "teamy-facet", version = "=0.50.0-rc.7" }
+egui = { version = "0.33.3", optional = true, default-features = false, features = ["default_fonts"] }
+opentelemetry-proto = { version = "0.31.0", optional = true, default-features = false, features = ["gen-tonic-messages", "logs"] }
+prost = { version = "0.14.1", optional = true }
+axum = { version = "0.8.9", optional = true, default-features = false, features = ["http1", "tokio"] }
+tokio = { version = "1.49.0", optional = true, features = ["io-util", "net", "rt", "sync", "time"] }
+
+[features]
+default = []
+telemetry = []
+otlp = ["telemetry", "dep:opentelemetry-proto", "dep:prost"]
+otlp-http = ["otlp", "dep:axum", "dep:tokio"]
+egui = ["telemetry", "dep:egui"]
 
 [dev-dependencies]
 facet-value = { package = "teamy-facet-value", version = "=0.50.0-rc.9" }

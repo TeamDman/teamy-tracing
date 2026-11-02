@@ -51,6 +51,9 @@ mod validate_span_cache;
 mod validated_span;
 mod writer_state;
 
+#[cfg(feature = "telemetry")]
+pub mod telemetry;
+
 pub use diagnostic_snapshot::DiagnosticSnapshot;
 pub use diagnostics::Diagnostics;
 pub use facet_json::FacetJson;

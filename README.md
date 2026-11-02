@@ -64,6 +64,16 @@ See [consumer integration](docs/integration.md), the compiled examples, and the
 [observable schema](docs/schema.md). `SharedWriter` is optional; an existing
 whole-record writer can be passed directly if its concurrency/error policy is suitable.
 
+## Optional telemetry preview
+
+The `telemetry` feature adds a Facet-backed in-memory record model and FIFO store;
+`otlp` decodes standard OTLP protobuf log requests, `otlp-http` adds an explicitly
+started loopback listener, and `egui` adds a reusable record widget. These are an
+initial synthetic-tested implementation, not a Codex application or a guarantee
+of complete capture. See [telemetry](docs/telemetry.md) for limits, loss semantics,
+caller ownership and unimplemented features. Existing formatting and subscriber
+behavior remains independent of these optional features.
+
 ## Delivery and failures
 
 The event is fully serialized before fmt submits it. Successful records are compact
