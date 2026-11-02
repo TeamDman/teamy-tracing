@@ -21,6 +21,7 @@ opentelemetry-proto = { version = "0.31.0", optional = true, default-features = 
 prost = { version = "0.14.1", optional = true }
 axum = { version = "0.8.9", optional = true, default-features = false, features = ["http1", "tokio"] }
 tokio = { version = "1.49.0", optional = true, features = ["io-util", "net", "rt", "sync", "time"] }
+eframe = { version = "0.33.3", optional = true, default-features = false, features = ["accesskit", "default_fonts", "glow", "wayland", "x11"] }
 
 [features]
 default = []
@@ -28,6 +29,11 @@ telemetry = []
 otlp = ["telemetry", "dep:opentelemetry-proto", "dep:prost"]
 otlp-http = ["otlp", "dep:axum", "dep:tokio"]
 egui = ["telemetry", "dep:egui"]
+synthetic-viewer = ["egui", "dep:eframe"]
+
+[[example]]
+name = "synthetic_telemetry_viewer"
+required-features = ["synthetic-viewer"]
 
 [dev-dependencies]
 facet-value = { package = "teamy-facet-value", version = "=0.50.0-rc.9" }

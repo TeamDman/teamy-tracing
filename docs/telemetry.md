@@ -59,3 +59,9 @@ correlation, filtering, a headless egui frame and local HTTP. They do not test
 real Codex telemetry, offline sender behavior, capture fidelity or a live user
 configuration. The local socket test requires an environment that permits
 loopback binds.
+
+For a standalone visual preview using invented decision/result records, run
+`cargo run --example synthetic_telemetry_viewer --features synthetic-viewer`.
+This optional example uses eframe, starts no listener, and does not read user
+data. It is an example shell around the generic widget, not the planned Teamy
+Codex application or a correlated PowerShell-specific presentation.
