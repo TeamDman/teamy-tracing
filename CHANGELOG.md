@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1 — 2026-11-06
+
+- Update exact owned registry dependencies to teamy-facet rc.8 and
+  JSON/format/value rc.10, including the isolated upstream comparison workspace.
+- Public APIs and first-party formatter/writer implementation are unchanged.
+
 ## 0.2.0 — 2026-10-27
 
 - Rename the public JSON layer constructor from `layer` to `json_layer`.
