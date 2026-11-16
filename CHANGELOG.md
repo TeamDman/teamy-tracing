@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.2 — 2026-11-16
+
+- Use exact Facet rc.9 and JSON rc.11 dependencies, including the isolated comparison workspace. Retain Format and Value rc.10 and the existing formatter/writer APIs.
+- Adopt shared nongeneric enum metadata without changing logging behavior.
+
+
 ## 0.2.1 — 2026-11-06
 
 - Update exact owned registry dependencies to teamy-facet rc.8 and

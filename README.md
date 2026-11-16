@@ -3,7 +3,7 @@
 Facet JSON event and span formatting for upstream `tracing-subscriber`. This is a
 library: callers own subscriber installation, filters, terminal ownership and sinks.
 Public source is MPL-2.0 with the applicable upstream MIT notice retained.
-The 0.2.1 distribution uses the exact owned Facet registry dependencies below.
+The 0.2.2 distribution uses the exact owned Facet registry dependencies below.
 
 ## Installation
 
@@ -11,7 +11,7 @@ For the registry release, depend on the published version:
 
 ```toml
 [dependencies]
-teamy-tracing = "=0.2.1"
+teamy-tracing = "=0.2.2"
 ```
 
 To review an unpublished checkout or develop against local changes, use:
@@ -112,23 +112,23 @@ disabled and contains no Serde. The approved owned registry pins are:
 
 | Import name | Registry package | Exact version |
 | --- | --- | --- |
-| `facet` | `teamy-facet` | `0.50.0-rc.8` |
-| `facet-json` | `teamy-facet-json` | `0.50.0-rc.10` |
+| `facet` | `teamy-facet` | `0.50.0-rc.9` |
+| `facet-json` | `teamy-facet-json` | `0.50.0-rc.11` |
 | `facet-format` | `teamy-facet-format` | `0.50.0-rc.10` |
 | `facet-value` (tests) | `teamy-facet-value` | `0.50.0-rc.10` |
 
-These packages share one core/reflect identity at rc.7 and the fixed derive macros at rc.8; matching crate
+These packages share one core/reflect identity at rc.7 and the fixed derive macros at rc.9; matching crate
 names or version numbers from upstream or Git do not imply the same Rust type
 identity. `DiagnosticSnapshot` implements the registry `teamy-facet` trait. A
 consumer serializing it can use:
 
 ```toml
-facet-json = { package = "teamy-facet-json", version = "=0.50.0-rc.10", default-features = false }
+facet-json = { package = "teamy-facet-json", version = "=0.50.0-rc.11", default-features = false }
 ```
 
 Then call `facet_json::to_string(&diagnostics.snapshot())`. Consumers deriving their
 own compatible types also need `facet = { package = "teamy-facet", version =
-"=0.50.0-rc.8" }`. The earlier Git identity is not interchangeable. Both lockfiles
+"=0.50.0-rc.9" }`. The earlier Git identity is not interchangeable. Both lockfiles
 record registry checksums; release preparation requalifies this dependency change
 rather than assuming the old Git measurements still apply.
 

@@ -29,9 +29,10 @@ has no typed startup formatter. Obtain the exact newer source before claiming
 consumer compatibility. See [library acceptance](library-acceptance.md) for the
 four executable adapter/sink tests and remaining prerequisites.
 
-Use the exact owned registry family: `facet` aliases `teamy-facet =0.50.0-rc.8`;
-JSON/format/value alias their `teamy-` packages at `=0.50.0-rc.10`. Both workspaces
-resolve one registry core/reflect identity at rc.7 and derive macros at rc.8. `DiagnosticSnapshot` now
+Use the exact owned registry family: `facet` aliases `teamy-facet =0.50.0-rc.9`;
+JSON uses `teamy-facet-json =0.50.0-rc.11`; Format and Value retain their
+`teamy-` packages at `=0.50.0-rc.10`. Both workspaces
+resolve one registry core/reflect identity at rc.7 and derive macros at rc.9. `DiagnosticSnapshot` now
 implements that registry Facet identity; the previous Git source and upstream
 `facet` packages are distinct identities. A consumer with old Git dependencies
 needs its own reviewed migration; this library change does not authorize one.

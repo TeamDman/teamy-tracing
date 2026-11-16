@@ -2949,9 +2949,9 @@ dependencies = [
 
 [[package]]
 name = "teamy-facet"
-version = "0.50.0-rc.8"
+version = "0.50.0-rc.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "32e1e6c1e2a9b8cacac28103967f026c5fa577689bbc4f310453cb0e7fa9612a"
+checksum = "c081482ad124d2cdbe43f8e0c31e67e6b35d544bb3e096b96268baba538bfad6"
 dependencies = [
  "autocfg",
  "teamy-facet-core",
@@ -2996,9 +2996,9 @@ dependencies = [
 
 [[package]]
 name = "teamy-facet-json"
-version = "0.50.0-rc.10"
+version = "0.50.0-rc.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef0f5f02e483c8fed2ed615925a0f24cc1755405b6bf8f8442bb3b3fa8c58ad1"
+checksum = "402a1e03782b5cbf2f0e30e1d5a518e16634c2474c04a95552c6a8aac86551a0"
 dependencies = [
  "teamy-facet",
  "teamy-facet-core",
@@ -3030,18 +3030,18 @@ dependencies = [
 
 [[package]]
 name = "teamy-facet-macros"
-version = "0.50.0-rc.8"
+version = "0.50.0-rc.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a1d25bb3a496621c568c878d0efc40ff6ef5e2747cedf505c655846d256cdc02"
+checksum = "5f2f3db0dd52af419b80605ee95bcac5d0708df4729f3f65242de0dfaf533d81"
 dependencies = [
  "teamy-facet-macros-impl",
 ]
 
 [[package]]
 name = "teamy-facet-macros-impl"
-version = "0.50.0-rc.8"
+version = "0.50.0-rc.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c94b6be90a807a5af4044c0cc4d07a1d6a01daa7615f1c4d4eacdc4ff67bab81"
+checksum = "62bd1fbe6023cacab33849fd630938e5e7d9cf6d4bbd204db2683729b49903a2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3097,7 +3097,7 @@ dependencies = [
 
 [[package]]
 name = "teamy-tracing"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "axum",
  "eframe",
