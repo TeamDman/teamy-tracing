@@ -1,7 +1,6 @@
-# Consumer integration proposal
+# Consumer integration
 
-No consumer has been changed. First qualify a reviewed consumer checkout separately
-from active Bend/Vox work. Keep `tracing-subscriber` from crates.io, with
+Keep `tracing-subscriber` from crates.io, with
 `default-features = false` and the consumer's `fmt`, `registry`, `env-filter`,
 `ansi` requirements; remove `json` only when no remaining code calls `.json()`,
 `Json`, `JsonFields`, or a wrapper that still delegates to them.
@@ -112,3 +111,107 @@ intentionally shared aggregate handle. Separate writer counters still identify a
 failed sink, as tested, but a zero formatting counter on one layer does not prove
 that shared span context was originally captured without error. Snapshot fields
 are sampled independently and are not durable-delivery receipts.
+
+## Live report-aware capture
+
+Enable `capture` for live events independently of JSON formatting. The
+`eyre` feature adds retained reports and enables capture. The `egui` feature adds
+reusable views and the existing telemetry model.
+
+Choose separate stores for distinct delivery responsibilities. An unbounded
+`LogBuffer::new()` can retain human output owed while a terminal is owned; a
+bounded `LogBuffer::bounded(NonZeroUsize)` suits an independent debug viewer.
+Clones of either buffer share its store. This is application composition, not two
+collectors hidden inside a widget. Apply a separate upstream per-layer filter
+for each capture layer; a viewer filter never changes capture or terminal output.
+
+`CaptureLayer::new(&buffer, active_probe, inactive_sink)` routes each event exactly
+once for that layer: capture while the probe returns true, otherwise invoke the
+provided sink. An always-true probe is suitable for an independently retained
+GUI history. A terminal layer can probe the application's terminal coordinator
+and send inactive records through a supplied terminal writer. Neither probe nor
+sink runs under a store or span-extension lock. Do not emit recursively into the
+same layer from those callbacks, a formatter or a writer.
+
+Keep the `LogBuffer` owner alive independently of its subscriber. Capture layers
+only hold weak buffer references. Supplied callbacks must not strongly capture
+that buffer or an owner containing it, which would reintroduce the same cycle.
+A captured report may retain a SpanTrace, which
+retains the dispatch and layer: a strong layer-to-buffer reference would close a
+cycle through that report. Report-valued span fields are rendered to text during
+recording instead of retained in span extensions, preventing a report from
+owning the span that owns it. Event fields other than `message` may retain typed
+reports. The stores release acknowledged or evicted reports outside locks, so
+error destructors that emit new events cannot deadlock the store.
+
+With `eyre`, construct `DiagnosticReport::new(report)` and record an event field
+as `error = diagnostic.as_error()`. Its `Arc<eyre::Report>` retains typed causes,
+the report handler and any sections or captured traces. `%diagnostic`,
+`?diagnostic`, a `message` field or a span field is text and cannot retain that
+contract. Handler installation remains the application boundary. The library
+does not install color-eyre, mutate global color settings or manufacture a new
+report from an error string.
+
+Read `records_since(&mut cursor)` to snapshot and advance an absolute position.
+An old cursor starts at the first surviving record after eviction or delivery.
+The absolute position is a `usize` even for a bounded buffer. On 32-bit targets,
+replace buffers before they reach 2^32 cumulative records.
+Only call `acknowledge_through(cursor)` after successful consumption; records
+arriving after the read remain available. Repeated acknowledgements are safe.
+`replay_to(writer)` snapshots before formatting, propagates writer failures and
+does not acknowledge anything. `formatted_records_since` uses the same terminal
+formatter as immediate output. A replay receipt is neither fsync nor durability.
+For shutdown, stop and join producers before the final read/write/flush boundary.
+
+A bounded buffer limits retained **record count**, not bytes. Arbitrary report
+handlers and source errors have unknown sizes. Even a small count may retain
+substantial memory, and snapshots can temporarily keep evicted reports alive.
+`new()` has no retention bound until acknowledged. Neither store is a durable
+journal, crash-recovery mechanism, secret scrubber or secure-memory erasure API.
+
+`DiagnosticReport` plain Display/Debug retain the complete diagnostic while
+removing supported styling and escaping unsupported control sequences.
+`terminal()` honors stderr color policy; `styled()` keeps permitted ANSI colors
+and text emphasis independently of a terminal. The allowed styling excludes
+terminal commands and concealment. Report-provided content remains potentially
+sensitive: presentation control escaping is not field redaction.
+
+### Reusable egui views
+
+With `egui`, own `gui::LogView` next to application window state and call
+`view.show(ui, &buffer)`. It has text/severity filters, context expandos and a
+Follow latest control. Every frame reads the buffer's currently retained history;
+it does not cache a second collector, acknowledge terminal output or flatten
+reports to `TelemetryRecord`. Absolute record cursors give stable expando IDs
+when older records are evicted. Use distinct egui UI scopes when displaying more
+than one buffer. Filtering scans retained record metadata, field names, and
+plain text including span fields. Report details render when opened. The caller
+schedules repaints.
+
+With both `egui` and `eyre`, `gui::DiagnosticReportView::new(&diagnostic).show(ui)`
+displays supported report colors as selectable egui text. Copy error puts the
+full plain diagnostic on the application clipboard, without terminal escapes.
+`layout_job()` exposes the same styled diagnostic for another application-owned
+layout. The dark inset background matches the usual color-eyre palette. The view
+does not own the report or change its handler. CT keeps portal layout, repaint,
+toast and account/resource policy outside these generic widgets.
+
+The widgets use egui **0.36.2**. Match that version in applications passing
+`egui::Ui` to the widgets. The standalone example owns the native window and
+chooses eframe **0.36.2** with glow. Its manifest enables the library's `egui` and
+`eyre` features through a local path dependency.
+
+From the repository root, check the example or launch the preview of synthetic data.
+
+```sh
+cargo check --offline --locked --manifest-path examples/synthetic-telemetry-viewer/Cargo.toml
+cargo run --locked --manifest-path examples/synthetic-telemetry-viewer/Cargo.toml
+```
+
+Maintainer scripts retain default checks and separately compile `capture`,
+`eyre` and `egui`, then run all-feature Clippy, headless behavior tests and docs.
+They also check the standalone example's formatting and compile it with Clippy.
+The no-Serde graph rule applies to default and capture/eyre normal/build graphs.
+Optional GUI dependencies may use Serde internally; that is not first-party
+Serde API adoption or a claim that the all-feature graph is Serde-free. Loopback
+OTLP tests remain explicitly synthetic local networking, not service validation.

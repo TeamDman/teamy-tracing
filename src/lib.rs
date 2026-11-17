@@ -51,6 +51,16 @@ mod validate_span_cache;
 mod validated_span;
 mod writer_state;
 
+#[cfg(feature = "capture")]
+pub mod capture;
+#[cfg(feature = "eyre")]
+mod diagnostic_report;
+#[cfg(feature = "eyre")]
+mod diagnostic_report_display;
+#[cfg(feature = "eyre")]
+pub use diagnostic_report::DiagnosticReport;
+#[cfg(feature = "egui")]
+pub mod gui;
 #[cfg(feature = "telemetry")]
 pub mod telemetry;
 

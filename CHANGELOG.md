@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.0 — 2026-11-17
+
+- Preserve LiLiQ-R-1.1 licensing and provenance for extracted CT capture/report/viewer source, include both original license texts, and declare cumulative MPL-2.0 AND MIT AND LiLiQ-R-1.1 package licensing.
+
+- Extract report-aware live capture, structured records and shared application-owned buffers from Cloud Terrastodon; keep sink routing, subscriber installation and retention policy explicit.
+- Add optional `eyre` report retention with original handlers and typed causes, sanitized terminal styling, and weak buffer ownership to prevent span/subscriber cycles.
+- Add reusable optional egui live-log and diagnostic views, full plain-text Copy error, severity/text filters and buffer-owned eviction without a second history.
+- Update the widgets and headless tests to egui 0.36.2. The synthetic viewer uses its own Cargo manifest with eframe 0.36.2 and glow. Run it by manifest path in place of the former synthetic-viewer feature.
+- Extend maintainer feature-matrix checks while retaining no-Serde assertions for the default and capture/eyre runtime graphs.
+
+
 ## 0.2.3 — 2026-11-17
 
 - Align exact Facet-family dependencies with borrowed PathBuf proxies and safe reflection inspection; preserve the existing lifecycle and logging APIs.

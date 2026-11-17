@@ -200,9 +200,9 @@ fn view_filter_and_display_escape_controls() {
     assert!(store.push(record));
     let mut view = teamy_tracing::telemetry::view::RecordView::default();
     let context = egui::Context::default();
-    let output = context.run(egui::RawInput::default(), |context| {
-        egui::CentralPanel::default().show(context, |ui| view.show(ui, &store));
-    });
+    let mut output = context.run_ui(egui::RawInput::default(), |ui| view.show(ui, &store));
+    // This headless test has no renderer to apply texture uploads.
+    output.textures_delta.clear();
     assert!(!output.shapes.is_empty());
 }
 

@@ -2,8 +2,10 @@
 
 Facet JSON event and span formatting for upstream `tracing-subscriber`. This is a
 library: callers own subscriber installation, filters, terminal ownership and sinks.
-Public source is MPL-2.0 with the applicable upstream MIT notice retained.
-The 0.2.3 distribution uses the exact owned Facet registry dependencies below.
+Source components retain MPL-2.0, MIT and LiLiQ-R-1.1 as identified in
+the [third-party notices](THIRD_PARTY_NOTICES.md) and accompanying license texts.
+The crate uses the exact owned Facet registry dependencies below.
+Optional features provide [report-aware capture and reusable GUI views](#live-capture-and-retained-reports).
 
 ## Installation
 
@@ -11,7 +13,7 @@ For the registry release, depend on the published version:
 
 ```toml
 [dependencies]
-teamy-tracing = "=0.2.3"
+teamy-tracing = "=0.3.0"
 ```
 
 To review an unpublished checkout or develop against local changes, use:
@@ -66,6 +68,7 @@ whole-record writer can be passed directly if its concurrency/error policy is su
 
 ## Optional telemetry preview
 
+Serialized telemetry is separate from the live capture and retained-report APIs below.
 The `telemetry` feature adds a Facet-backed in-memory record model and FIFO store;
 `otlp` decodes standard OTLP protobuf log requests, `otlp-http` adds an explicitly
 started loopback listener, and `egui` adds a reusable record widget. These are an
@@ -147,8 +150,10 @@ Maintainer scripts are **checkout-only**: run `scripts/check.ps1` on Windows or
 `sh scripts/check.sh` on Linux with the documented toolchains and cached dependencies.
 They install nothing and use offline, locked Cargo. The scripts and isolated
 comparison workspace are excluded from the crate archive. From an extracted crate,
-run `cargo test --offline --locked`, both examples, `cargo clippy --offline --locked
---all-targets --no-deps -- -D warnings`, and `cargo doc --offline --locked --no-deps`.
+run `cargo test --offline --locked` and `cargo test --offline --locked --all-features`,
+the two noninteractive examples, `cargo clippy --offline --locked --all-targets
+--all-features --no-deps -- -D warnings`, and default/all-feature rustdoc. The
+maintainer scripts also check the standalone GUI example by its own manifest.
 Populate dependency caches before requesting offline validation.
 
 [Candidate/package review](docs/candidate-review.md) records the completed independent
@@ -173,6 +178,78 @@ Figue parser, Windows resources and CLI build metadata do not apply to this libr
 
 Upstream behavior and the adapted byte formatter are attributed in
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The upstream MIT notice must remain
-with adapted code. Facet declares MIT OR Apache-2.0. First-party source is MPL-2.0;
-public repository publication is approved. Package publication and consumer adoption
-remain separate decisions. See [handoff](docs/handoff.md) for unfinished work.
+with adapted code. Facet declares MIT OR Apache-2.0. The extracted Cloud Terrastodon
+capture/report/viewer code retains LiLiQ-R-1.1; other first-party source is MPL-2.0.
+The combined package declares MPL-2.0 AND MIT AND LiLiQ-R-1.1.
+
+## Live capture and retained reports
+
+Live logging is available independently of the JSON writer.
+
+| Feature | Capability |
+| --- | --- |
+| `capture` | `capture::CaptureLayer`, structured records, application-owned `LogBuffer`, terminal formatting and replay to supplied writers |
+| `eyre` | Shared `DiagnosticReport` retaining an original `eyre::Report`; includes `capture` |
+| `egui` | `gui::LogView` over the live buffer and the existing serialized telemetry view; no window lifecycle |
+| `egui` + `eyre` | `gui::DiagnosticReportView`, supported ANSI-to-egui styling and a full plain-text Copy error button |
+
+`CaptureLayer::new` receives a borrowed buffer, an application-owned active probe,
+and an explicit inactive sink. Active events enter that buffer; inactive events
+go to the sink. Apply upstream per-layer filters independently. The application
+keeps the buffer alive, decides terminal routing and error handling, and schedules
+GUI repaints. The library does not acquire stdout/stderr, install a subscriber,
+open files or launch a window.
+
+With the `eyre` feature, capture reports as typed event fields:
+
+```rust,ignore
+use std::sync::Arc;
+use teamy_tracing::DiagnosticReport;
+use teamy_tracing::capture::{CaptureLayer, LogBuffer};
+use tracing_subscriber::prelude::*;
+
+let buffer = LogBuffer::new(); // Choose bounded(NonZeroUsize) for a long-lived viewer.
+let subscriber = tracing_subscriber::registry()
+    .with(CaptureLayer::new(&buffer, Arc::new(|| true), |_| {}));
+tracing::subscriber::with_default(subscriber, || {
+    let report = DiagnosticReport::new(eyre::eyre!("Synthetic source error")
+        .wrap_err("Could not load the example"));
+    tracing::error!(error = report.as_error(), "Example operation failed");
+});
+```
+
+Use `error = report.as_error()`, rather than `%report`, `?report` or a message, to
+retain typed causes, the original handler, attached sections and captured traces.
+The application installs color-eyre or another eyre handler if desired. Plain
+rendering strips permitted styling; `terminal()` respects stderr color policy;
+`styled()` preserves supported colors for presentation adapters. Unsupported
+terminal controls are escaped. This is presentation safety, not secret redaction.
+
+Buffer clones share one store. `new()` retains records until acknowledgement;
+`bounded(capacity)` evicts the oldest records by **record count**, not bytes.
+Report sizes and handler-owned state are unknown, so neither is a strict process
+memory bound. Read cursors are absolute; eviction and acknowledgement advance the
+oldest surviving position. Acknowledge only after successful consumption. Replay
+uses a supplied writer and is fallible, does not acknowledge, and is not durable
+logging.
+
+Layers hold weak buffer references to break report/span/subscriber ownership
+cycles. Span report fields are rendered immediately rather than retained inside
+the same span that their trace may own. User formatting, callbacks and final report
+destructors run outside store locks. Sinks must not recursively emit into the same
+capture layer. See [integration](docs/integration.md#live-report-aware-capture)
+for routing, rendering and qualification details.
+
+The widgets use egui **0.36.2**. Consumers passing `egui::Ui` across crate
+boundaries must select a compatible egui version. `LogView` reads the live
+buffer's current records, while the telemetry view reads serialized records.
+Live text filters search event metadata, span context, field names, and plain
+text fields. Open a retained report to render its details.
+
+The standalone synthetic viewer depends on this checkout with the `egui` and
+`eyre` features. Its own Cargo package selects eframe **0.36.2** with glow.
+Run it from the repository root with the following command.
+
+```sh
+cargo run --locked --manifest-path examples/synthetic-telemetry-viewer/Cargo.toml
+```

@@ -1,0 +1,26 @@
+[package]
+name = "teamy-tracing-synthetic-telemetry-viewer"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.96"
+publish = false
+
+[workspace]
+
+[dependencies]
+eframe = { version = "0.36.2", default-features = false, features = ["accesskit", "default_fonts", "glow", "wayland", "x11"] }
+eyre = "0.6.12"
+teamy-tracing = { path = "../..", features = ["egui", "eyre"] }
+tracing = { version = "0.1.44", default-features = false, features = ["std"] }
+tracing-subscriber = { version = "0.3.23", default-features = false, features = ["registry"] }
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "deny"
+unfulfilled_lint_expectations = "deny"
+
+[lints.clippy]
+disallowed_macros = "deny"
+disallowed_methods = "deny"
+disallowed_types = "deny"
+allow_attributes = "deny"

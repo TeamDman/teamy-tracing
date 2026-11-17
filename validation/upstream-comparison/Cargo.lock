@@ -467,7 +467,7 @@ dependencies = [
 
 [[package]]
 name = "teamy-tracing"
-version = "0.2.3"
+version = "0.3.0"
 dependencies = [
  "teamy-facet",
  "teamy-facet-format",
