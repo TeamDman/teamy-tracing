@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.3 — 2026-11-17
+
+- Align exact Facet-family dependencies with borrowed PathBuf proxies and safe reflection inspection; preserve the existing lifecycle and logging APIs.
+
+
 ## 0.2.2 — 2026-11-16
 
 - Use exact Facet rc.9 and JSON rc.11 dependencies, including the isolated comparison workspace. Retain Format and Value rc.10 and the existing formatter/writer APIs.
